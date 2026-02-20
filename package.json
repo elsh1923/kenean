@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
   },
@@ -19,8 +20,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.2.1",
-    "prisma": "^5.22.0"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -29,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"
