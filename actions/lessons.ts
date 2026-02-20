@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 // Validation schemas
-const createLessonSchema = z.object({
+const lessonBaseSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   titleAmharic: z.string().optional(),
   description: z.string().optional(),
@@ -18,7 +18,9 @@ const createLessonSchema = z.object({
   duration: z.number().int().positive().optional(),
   volumeId: z.string().min(1, "Volume is required"),
   published: z.boolean().default(false),
-}).refine((data) => {
+});
+
+const createLessonSchema = lessonBaseSchema.refine((data) => {
   if (data.type === "VIDEO" && !data.youtubeUrl) {
     return false;
   }
@@ -28,7 +30,7 @@ const createLessonSchema = z.object({
   path: ["youtubeUrl"],
 });
 
-const updateLessonSchema = createLessonSchema.partial();
+const updateLessonSchema = lessonBaseSchema.partial();
 
 // Types
 export type CreateLessonInput = z.infer<typeof createLessonSchema>;
