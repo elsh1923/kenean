@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin } from "better-auth/plugins";
+import { admin, AuthorizeResponse } from "better-auth/plugins";
 import { prisma } from "./prisma";
 
 export const auth = betterAuth({
@@ -17,8 +17,14 @@ export const auth = betterAuth({
       defaultRole: "user",
       adminRoles: ["admin", "teacher"],
       roles: {
-        admin: {},
-        teacher: {},
+        admin: {
+          authorize: () => ({ success: true }),
+          statements: [],
+        },
+        teacher: {
+          authorize: () => ({ success: true }),
+          statements: [],
+        },
       },
     }),
   ],
