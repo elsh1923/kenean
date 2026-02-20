@@ -22,7 +22,7 @@ export default function CategoriesPage() {
   const loadCategories = async () => {
     setLoading(true);
     const result = await getCategories();
-    if (result.success) {
+    if (result.success && result.data) {
       setCategories(result.data);
     } else {
       setError(result.error || "Failed to load categories");

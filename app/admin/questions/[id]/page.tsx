@@ -39,7 +39,7 @@ export default function QuestionDetailPage() {
       getDiscussions(questionId),
     ]);
 
-    if (questionResult.success) {
+    if (questionResult.success && questionResult.data) {
       setQuestion(questionResult.data);
     }
 
@@ -48,7 +48,7 @@ export default function QuestionDetailPage() {
       setAnswerContent(answerResult.data.content);
     }
 
-    if (discussionsResult.success) {
+    if (discussionsResult.success && discussionsResult.data) {
       setDiscussions(discussionsResult.data);
     }
 
@@ -65,8 +65,7 @@ export default function QuestionDetailPage() {
     if (answer) {
       result = await updateAnswer(answer.id, { content: answerContent });
     } else {
-      result = await submitAnswer({
-        questionId,
+      result = await submitAnswer(questionId, {
         content: answerContent,
       });
     }
@@ -89,8 +88,7 @@ export default function QuestionDetailPage() {
 
     setSubmitting(true);
 
-    const result = await addDiscussion({
-      questionId,
+    const result = await addDiscussion(questionId, {
       content: discussionContent,
     });
 

@@ -23,14 +23,14 @@ export default function VolumesPage() {
   const loadData = async () => {
     setLoading(true);
     const categoriesResult = await getCategories();
-    if (categoriesResult.success) {
+    if (categoriesResult.success && categoriesResult.data) {
       setCategories(categoriesResult.data);
       
       // Load volumes for each category
       const volumesData: Record<string, any[]> = {};
       for (const category of categoriesResult.data) {
         const result = await getVolumesByCategory(category.id);
-        if (result.success) {
+        if (result.success && result.data) {
           volumesData[category.id] = result.data;
         }
       }

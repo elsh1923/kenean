@@ -5,10 +5,10 @@ import Link from "next/link";
 export default async function AdminDashboard() {
   const statsResult = await getAdminStats();
 
-  if (!statsResult.success) {
+  if (!statsResult.success || !statsResult.data) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-400">{statsResult.error}</p>
+        <p className="text-red-400">{statsResult.error || "Failed to load stats"}</p>
       </div>
     );
   }

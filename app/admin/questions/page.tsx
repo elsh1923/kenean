@@ -38,8 +38,8 @@ export default function QuestionsPage() {
     const result = await getAllQuestions({
       status: selectedStatus === "ALL" ? undefined : selectedStatus as any,
     });
-    if (result.success) {
-      setQuestions(result.data);
+    if (result.success && result.data) {
+      setQuestions(result.data.questions);
     }
     setLoading(false);
   };

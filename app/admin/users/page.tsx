@@ -37,7 +37,7 @@ export default function UsersPage() {
       banned: bannedFilter === "all" ? undefined : bannedFilter === "banned",
       search: searchTerm || undefined,
     });
-    if (result.success) {
+    if (result.success && result.data) {
       setUsers(result.data);
     }
     setLoading(false);
