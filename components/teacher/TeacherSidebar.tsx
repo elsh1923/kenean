@@ -4,64 +4,51 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  FolderTree,
-  BookOpen,
-  Video,
   MessageSquare,
-  Users,
   LogOut,
   Menu,
   X,
   UserCircle,
+  Home,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
 
 const navigation = [
   {
+    name: "Main Site",
+    href: "/",
+    icon: Home,
+  },
+  {
     name: "Dashboard",
-    href: "/admin",
+    href: "/teacher",
     icon: LayoutDashboard,
   },
   {
-    name: "Categories",
-    href: "/admin/categories",
-    icon: FolderTree,
-  },
-  {
-    name: "Volumes",
-    href: "/admin/volumes",
-    icon: BookOpen,
-  },
-  {
-    name: "Lessons",
-    href: "/admin/lessons",
-    icon: Video,
-  },
-  {
     name: "Questions",
-    href: "/admin/questions",
+    href: "/teacher/questions",
     icon: MessageSquare,
   },
   {
-    name: "Users & Teachers",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
     name: "My Profile",
-    href: "/admin/profile",
+    href: "/teacher/profile",
     icon: UserCircle,
   },
 ];
 
-interface AdminSidebarProps {
+interface TeacherSidebarProps {
   userName?: string;
 }
 
-export function AdminSidebar({ userName }: AdminSidebarProps) {
+export function TeacherSidebar({ userName }: TeacherSidebarProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const isAdmin = session?.user?.role === "admin";
 
   return (
     <>
@@ -88,7 +75,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
           {/* Header */}
           <div className="p-6 border-b border-gold/20">
             <h1 className="text-2xl font-serif font-bold text-gold">
-              Admin Panel
+              Teacher Panel
             </h1>
             {userName && (
               <p className="mt-2 text-sm text-gray-300">
@@ -102,7 +89,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
             {navigation.map((item) => {
               const isActive =
                 pathname === item.href ||
-                (item.href !== "/admin" && pathname.startsWith(item.href));
+                (item.href !== "/teacher" && pathname.startsWith(item.href));
               const Icon = item.icon;
 
               return (

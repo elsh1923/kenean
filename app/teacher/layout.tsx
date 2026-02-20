@@ -1,29 +1,27 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-utils";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { TeacherSidebar } from "@/components/teacher/TeacherSidebar";
 
-export default async function AdminLayout({
+export default async function TeacherLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Check authentication and admin role
+  // Check authentication and staff role (admin or teacher)
   const session = await getSession();
 
   if (!session) {
-    redirect("/login?redirect=/admin");
+    redirect("/login?redirect=/teacher");
   }
 
-  if (session.user.role !== "admin") {
-    if (session.user.role === "teacher") {
-      redirect("/teacher");
-    }
+  // Both admins and teachers can access the teacher panel
+  if (session.user.role !== "admin" && session.user.role !== "teacher") {
     redirect("/");
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-dark via-primary-dark/98 to-black">
-      <AdminSidebar userName={session.user.name || session.user.email} />
+      <TeacherSidebar userName={session.user.name || session.user.email} />
       
       <main className="lg:pl-64">
         <div className="p-6 lg:p-8">

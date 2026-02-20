@@ -19,6 +19,7 @@ import {
   UserX,
   MessageSquare,
   CheckCircle,
+  GraduationCap,
 } from "lucide-react";
 
 export default function UsersPage() {
@@ -52,12 +53,8 @@ export default function UsersPage() {
     loadUsers();
   };
 
-  const handlePromoteToAdmin = async (userId: string, currentRole: string) => {
-    const newRole = currentRole === "admin" ? "user" : "admin";
-    const confirmMessage =
-      newRole === "admin"
-        ? "Are you sure you want to promote this user to admin?"
-        : "Are you sure you want to demote this admin to user?";
+  const handleUpdateRole = async (userId: string, newRole: "user" | "teacher" | "admin") => {
+    const confirmMessage = `Are you sure you want to change this user's role to ${newRole}?`;
 
     if (!confirm(confirmMessage)) return;
 
@@ -126,8 +123,8 @@ export default function UsersPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-serif font-bold text-gold mb-2">Users</h1>
-        <p className="text-gray-300">Manage user accounts and permissions</p>
+        <h1 className="text-4xl font-serif font-bold text-gold mb-2">Users & Teachers</h1>
+        <p className="text-gray-300">Manage user accounts and promote teachers to answer spiritual questions</p>
       </div>
 
       {/* Filters */}
@@ -155,6 +152,9 @@ export default function UsersPage() {
           </option>
           <option value="user" className="bg-primary-dark">
             Users
+          </option>
+          <option value="teacher" className="bg-primary-dark">
+            Teachers
           </option>
           <option value="admin" className="bg-primary-dark">
             Admins
@@ -246,11 +246,13 @@ export default function UsersPage() {
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           user.role === "admin"
+                            ? "bg-red-500/20 text-red-400"
+                            : user.role === "teacher"
                             ? "bg-gold/20 text-gold"
                             : "bg-gray-500/20 text-gray-400"
                         }`}
                       >
-                        {user.role}
+                        {user.role === "admin" ? "Super Admin" : user.role === "teacher" ? "Teacher" : "User"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -288,21 +290,36 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handlePromoteToAdmin(user.id, user.role)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            user.role === "admin"
-                              ? "text-gray-400 hover:text-orange-400 hover:bg-orange-500/10"
-                              : "text-gray-400 hover:text-gold hover:bg-gold/10"
-                          }`}
-                          title={
-                            user.role === "admin"
-                              ? "Demote to User"
-                              : "Promote to Admin"
-                          }
-                        >
-                          <Shield className="w-4 h-4" />
-                        </button>
+                        {/* Role Management */}
+                        {user.role !== "admin" && (
+                          <button
+                            onClick={() => handleUpdateRole(user.id, "admin")}
+                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Promote to Super Admin (Full access to all settings)"
+                          >
+                            <Shield className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {user.role !== "teacher" && (
+                          <button
+                            onClick={() => handleUpdateRole(user.id, "teacher")}
+                            className="p-2 text-gray-400 hover:text-gold hover:bg-gold/10 rounded-lg transition-colors"
+                            title="Promote to Teacher (Restricted to answering questions)"
+                          >
+                            <GraduationCap className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {user.role !== "user" && (
+                          <button
+                            onClick={() => handleUpdateRole(user.id, "user")}
+                            className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                            title="Demote to Regular User"
+                          >
+                            <UserCheck className="w-4 h-4" />
+                          </button>
+                        )}
 
                         {user.banned ? (
                           <button

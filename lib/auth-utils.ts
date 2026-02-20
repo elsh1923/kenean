@@ -22,12 +22,23 @@ export async function requireAuth() {
 }
 
 /**
- * Require admin role - throws error if not admin
+ * Require admin or teacher role - throws error if not authorized
  */
 export async function requireAdmin() {
   const session = await requireAuth();
+  if (session.user.role !== "admin" && session.user.role !== "teacher") {
+    throw new Error("Forbidden: Access restricted to staff");
+  }
+  return session;
+}
+
+/**
+ * Require ONLY admin role - for system settings, user management, etc.
+ */
+export async function requireSuperAdmin() {
+  const session = await requireAuth();
   if (session.user.role !== "admin") {
-    throw new Error("Forbidden: Admin access required");
+    throw new Error("Forbidden: Super Admin access required");
   }
   return session;
 }
@@ -45,5 +56,5 @@ export async function isAuthenticated(): Promise<boolean> {
  */
 export async function isAdmin(): Promise<boolean> {
   const session = await getSession();
-  return session?.user.role === "admin";
+  return session?.user.role === "admin" || session?.user.role === "teacher";
 }

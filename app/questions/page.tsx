@@ -1,7 +1,8 @@
-import { getAnsweredQuestions } from "@/actions";
-import { MessageSquare, Plus, ArrowLeft, Search } from "lucide-react";
+import { getAnsweredQuestions, getMyQuestions } from "@/actions";
+import { MessageSquare, Plus, ArrowLeft, Search, Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { QuestionCard } from "@/components/questions/QuestionCard";
+import { getSession } from "@/lib/auth-utils";
 
 export const metadata = {
   title: "Q&A | Kenean",
@@ -14,7 +15,12 @@ export default async function QuestionsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const result = await getAnsweredQuestions();
+  const session = await getSession();
+  
+  const [result, myQuestionsResult] = await Promise.all([
+    getAnsweredQuestions(),
+    session ? getMyQuestions() : Promise.resolve({ success: true, data: [] })
+  ]);
 
   if (!result.success || !result.data) {
     return (
@@ -27,6 +33,7 @@ export default async function QuestionsPage({
   }
 
   const { questions } = result.data;
+  const myQuestions = myQuestionsResult.success ? (myQuestionsResult.data || []) : [];
   
   // Basic client-side filtering logic for display (real search would be an action)
   const filteredQuestions = q 
@@ -68,6 +75,68 @@ export default async function QuestionsPage({
       </div>
 
       <div className="container mx-auto px-4 py-16">
+        {/* User's Recent Questions */}
+        {myQuestions.length > 0 && (
+          <div className="mb-20">
+            <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
+              <Clock className="w-6 h-6 text-accent" />
+              Your Recent Questions
+            </h2>
+            <div className="flex flex-col gap-4">
+              {myQuestions.slice(0, 3).map((question: any) => (
+                <div key={question.id} className="bg-secondary/10 border border-border/50 rounded-2xl p-6 relative group hover:border-accent/30 transition-all w-full">
+                   <div className="flex flex-wrap items-center gap-4 mb-4">
+                      {question.answer ? (
+                        <span className="flex items-center gap-1 text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                          <CheckCircle className="w-3 h-3" /> Answered
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                          <Clock className="w-3 h-3" /> In Review
+                        </span>
+                      )}
+                      {question.lesson && (
+                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                          From: {question.lesson.title}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-muted-foreground ml-auto">
+                        {new Date(question.createdAt).toLocaleDateString()}
+                      </span>
+                   </div>
+                   <p className="text-foreground font-medium mb-4">{question.content}</p>
+                   {question.answer && (
+                     <Link 
+                       href={`/questions/${question.id}`}
+                       className="text-sm font-bold text-primary hover:text-accent flex items-center gap-1 transition-colors"
+                     >
+                       Read Answer <Plus className="w-4 h-4 rotate-45" />
+                     </Link>
+                   )}
+                </div>
+              ))}
+            </div>
+            {myQuestions.length > 3 && (
+              <div className="mt-4 text-right">
+                <Link href="/profile" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                  View all your questions in profile →
+                </Link>
+              </div>
+            )}
+            <div className="mt-12 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </div>
+        )}
+
+        {/* Gallery Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-serif font-bold text-primary italic">Community Wisdom</h2>
+          {q && (
+            <Link href="/questions" className="text-sm font-medium text-accent hover:underline">
+              Clear search
+            </Link>
+          )}
+        </div>
+
         {/* Search Bar (Static decoration for now) */}
         <div className="max-w-2xl mx-auto mb-16 relative group">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent transition-colors" />
@@ -97,7 +166,7 @@ export default async function QuestionsPage({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-6">
             {filteredQuestions.map((question: any) => (
               <QuestionCard key={question.id} question={question} />
             ))}

@@ -30,11 +30,15 @@ export function LoginForm() {
       if (authError) {
         setError(authError.message || "Invalid credentials. Please try again.");
       } else {
-        // Use role from the direct signIn response — no extra API call needed
+        // Redirect all staff (Admins and Teachers) to the teacher workspace by default
         const userRole = (data?.user as any)?.role;
-        const targetUrl = userRole === "admin" ? "/admin" : "/profile";
-        router.replace(targetUrl);
-        router.refresh();
+        let targetUrl = "/profile";
+        
+        if (userRole === "admin" || userRole === "teacher") {
+          targetUrl = "/teacher";
+        }
+        
+        window.location.href = targetUrl;
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again later.");

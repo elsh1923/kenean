@@ -1,13 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-utils";
+import { requireAdmin, requireSuperAdmin } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 // Validation schemas
 const updateUserRoleSchema = z.object({
-  role: z.enum(["user", "admin"]),
+  role: z.enum(["user", "teacher", "admin"]),
 });
 
 const banUserSchema = z.object({
@@ -24,7 +24,7 @@ export async function getAllUsers(options?: {
   offset?: number;
 }) {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     const where: any = {};
 
@@ -84,7 +84,7 @@ export async function getAllUsers(options?: {
 // Get user by ID (admin only)
 export async function getUserById(id: string) {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -125,9 +125,9 @@ export async function getUserById(id: string) {
 }
 
 // Update user role (admin only)
-export async function updateUserRole(userId: string, role: "user" | "admin") {
+export async function updateUserRole(userId: string, role: "user" | "teacher" | "admin") {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     const validated = updateUserRoleSchema.parse({ role });
 
@@ -156,7 +156,7 @@ export async function banUser(
   input: { reason: string; expiresAt?: string }
 ) {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     const validated = banUserSchema.parse(input);
 
@@ -186,7 +186,7 @@ export async function banUser(
 // Unban user (admin only)
 export async function unbanUser(userId: string) {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     const user = await prisma.user.update({
       where: { id: userId },
@@ -211,7 +211,7 @@ export async function unbanUser(userId: string) {
 // Delete user (admin only)
 export async function deleteUser(userId: string) {
   try {
-    await requireAdmin();
+    await requireSuperAdmin();
 
     // Cascade delete will handle related records (sessions, questions, etc.)
     await prisma.user.delete({
@@ -247,7 +247,7 @@ export async function getAdminStats() {
       answeredQuestions,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.user.count({ where: { role: "admin" } }),
+      prisma.user.count({ where: { role: { in: ["admin", "teacher"] } } }),
       prisma.category.count(),
       prisma.volume.count(),
       prisma.lesson.count(),

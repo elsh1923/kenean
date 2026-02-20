@@ -271,6 +271,7 @@ export async function submitQuestion(input: SubmitQuestionInput) {
     });
 
     revalidatePath("/admin/questions");
+    revalidatePath("/questions");
 
     return {
       success: true,

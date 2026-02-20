@@ -91,6 +91,14 @@ export function Navbar() {
                   Admin
                 </Link>
               )}
+              {session.user.role === "teacher" && (
+                <Link 
+                  href="/teacher" 
+                  className="text-sm font-medium text-primary hover:text-accent"
+                >
+                  Teacher
+                </Link>
+              )}
               <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-primary font-bold border border-primary/10">
                 {session.user.name?.charAt(0).toUpperCase()}
               </div>
