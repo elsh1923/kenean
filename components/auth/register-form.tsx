@@ -12,7 +12,6 @@ export function RegisterForm() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,22 +19,22 @@ export function RegisterForm() {
     setLoading(true);
     setError("");
 
+    console.log("[REGISTER] Attempting registration for:", email);
     try {
       const { data, error: authError } = await signUp.email({
         email,
         password,
         name,
-        callbackURL: "/login",
+        callbackURL: "/profile",
       });
+
+      console.log("[REGISTER] Response:", { data, error: authError });
 
       if (authError) {
         setError(authError.message || "Something went wrong. Please try again.");
       } else {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push("/login");
-          router.refresh();
-        }, 2000);
+        router.push("/profile");
+        router.refresh();
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again later.");
@@ -44,18 +43,6 @@ export function RegisterForm() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center bg-accent/5 rounded-xl border border-accent/20 animate-in zoom-in-95 duration-500">
-        <div className="p-4 bg-green-500/10 rounded-full">
-          <CheckCircle2 className="w-12 h-12 text-green-500" />
-        </div>
-        <h2 className="font-serif text-2xl font-bold text-foreground">Welcome to Kenean</h2>
-        <p className="text-muted-foreground">Registration successful. We're preparing your dashboard...</p>
-        <Loader2 className="w-8 h-8 animate-spin text-accent mt-4" />
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

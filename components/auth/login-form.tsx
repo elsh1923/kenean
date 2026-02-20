@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export function LoginForm() {
@@ -11,7 +11,6 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -31,11 +30,11 @@ export function LoginForm() {
       if (authError) {
         setError(authError.message || "Invalid credentials. Please try again.");
       } else {
-        setSuccess(true);
         // Use role from the direct signIn response — no extra API call needed
         const userRole = (data?.user as any)?.role;
         const targetUrl = userRole === "admin" ? "/admin" : "/profile";
         router.replace(targetUrl);
+        router.refresh();
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again later.");
@@ -44,18 +43,6 @@ export function LoginForm() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center bg-accent/5 rounded-xl border border-accent/20 animate-in zoom-in-95 duration-500">
-        <div className="p-4 bg-green-500/10 rounded-full">
-          <CheckCircle2 className="w-12 h-12 text-green-500" />
-        </div>
-        <h2 className="font-serif text-2xl font-bold text-foreground">Welcome Back!</h2>
-        <p className="text-muted-foreground">Signing you in...</p>
-        <Loader2 className="w-8 h-8 animate-spin text-accent mt-4" />
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
