@@ -10,12 +10,22 @@ const createLessonSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   titleAmharic: z.string().optional(),
   description: z.string().optional(),
-  youtubeUrl: z.string().url("Invalid YouTube URL"),
+  type: z.enum(["VIDEO", "BOOK"]).default("VIDEO"),
+  youtubeUrl: z.string().url("Invalid YouTube URL").optional().or(z.literal("")),
+  pdfUrl: z.string().url("Invalid PDF URL").optional().or(z.literal("")),
   thumbnailUrl: z.string().url().optional(),
   lessonNumber: z.number().int().positive("Lesson number must be positive"),
   duration: z.number().int().positive().optional(),
   volumeId: z.string().min(1, "Volume is required"),
   published: z.boolean().default(false),
+}).refine((data) => {
+  if (data.type === "VIDEO" && !data.youtubeUrl) {
+    return false;
+  }
+  return true;
+}, {
+  message: "YouTube URL is required for video lessons",
+  path: ["youtubeUrl"],
 });
 
 const updateLessonSchema = createLessonSchema.partial();
@@ -203,9 +213,9 @@ export async function createLesson(input: CreateLessonInput) {
       };
     }
 
-    // Auto-generate thumbnail from YouTube URL if not provided
+    // Auto-generate thumbnail from YouTube URL if not provided and it's a video
     let thumbnailUrl = validated.thumbnailUrl;
-    if (!thumbnailUrl) {
+    if (!thumbnailUrl && validated.type === "VIDEO" && validated.youtubeUrl) {
       const videoId = extractYouTubeId(validated.youtubeUrl);
       if (videoId) {
         thumbnailUrl = getYouTubeThumbnail(videoId);
@@ -273,7 +283,7 @@ export async function updateLesson(id: string, input: UpdateLessonInput) {
 
     // Update thumbnail if YouTube URL changed and no thumbnail provided
     let thumbnailUrl = validated.thumbnailUrl;
-    if (validated.youtubeUrl && !validated.thumbnailUrl) {
+    if (validated.type === "VIDEO" && validated.youtubeUrl && !validated.thumbnailUrl) {
       const videoId = extractYouTubeId(validated.youtubeUrl);
       if (videoId) {
         thumbnailUrl = getYouTubeThumbnail(videoId);

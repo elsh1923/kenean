@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -26,28 +26,16 @@ export function LoginForm() {
       const { data, error: authError } = await signIn.email({
         email,
         password,
-        callbackURL: redirectUrl,
       });
 
       if (authError) {
         setError(authError.message || "Invalid credentials. Please try again.");
       } else {
         setSuccess(true);
-        console.log("Login successful, refreshing session..."); // Debug log
-        
-        // Fetch the full session to ensure we have the latest role
-        const sessionData = await authClient.getSession();
-        const userRole = (sessionData?.data?.user as any)?.role;
-        
-        console.log("Refreshed session role:", userRole); // Debug log
-
-        // Redirect: admin → /admin, regular user → /profile
+        // Use role from the direct signIn response — no extra API call needed
+        const userRole = (data?.user as any)?.role;
         const targetUrl = userRole === "admin" ? "/admin" : "/profile";
-        
-        setTimeout(() => {
-          router.push(targetUrl);
-          router.refresh();
-        }, 1000);
+        router.replace(targetUrl);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again later.");

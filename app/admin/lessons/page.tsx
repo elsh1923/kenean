@@ -13,7 +13,8 @@ import {
   UpdateLessonInput,
 } from "@/actions";
 import { FormModal } from "@/components/admin/FormModal";
-import { Edit, Trash2, Plus, Video, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Edit, Trash2, Plus, Video, Book, Eye, EyeOff, CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function LessonsPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -46,7 +47,7 @@ export default function LessonsPage() {
   const loadCategories = async () => {
     setLoading(true);
     const result = await getCategories();
-    if (result.success) {
+    if (result.success && result.data) {
       setCategories(result.data);
       if (result.data.length > 0) {
         setSelectedCategoryId(result.data[0].id);
@@ -57,7 +58,7 @@ export default function LessonsPage() {
 
   const loadVolumes = async (categoryId: string) => {
     const result = await getVolumesByCategory(categoryId);
-    if (result.success) {
+    if (result.success && result.data) {
       setVolumes(result.data);
       if (result.data.length > 0) {
         setSelectedVolumeId(result.data[0].id);
@@ -69,7 +70,7 @@ export default function LessonsPage() {
 
   const loadLessons = async (volumeId: string) => {
     const result = await getLessonsByVolumeAdmin(volumeId);
-    if (result.success) {
+    if (result.success && result.data) {
       setLessons(result.data);
     }
   };
@@ -201,7 +202,22 @@ export default function LessonsPage() {
       {!selectedVolumeId ? (
         <div className="text-center py-12 bg-white/5 rounded-xl border border-white/20">
           <Video className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-          <p className="text-gray-400 text-lg">Select a volume to view lessons</p>
+          {volumes.length === 0 ? (
+            <>
+              <p className="text-gray-400 text-lg">No volumes found in this category</p>
+              <p className="text-gray-500 text-sm mt-2">
+                You must create a volume first before you can add lessons.
+              </p>
+              <Link 
+                href="/admin/volumes"
+                className="inline-flex items-center gap-2 mt-4 text-gold hover:underline"
+              >
+                Go to Volumes <Plus className="w-4 h-4" />
+              </Link>
+            </>
+          ) : (
+            <p className="text-gray-400 text-lg">Select a volume to view lessons</p>
+          )}
         </div>
       ) : lessons.length === 0 ? (
         <div className="text-center py-12 bg-white/5 rounded-xl border border-white/20">
@@ -245,7 +261,11 @@ export default function LessonsPage() {
                     )}
                   </div>
                   <div className="flex-shrink-0">
-                    {lesson.published ? (
+                    {lesson.type === "BOOK" ? (
+                      <div className="bg-gold/10 p-1.5 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-gold" />
+                      </div>
+                    ) : lesson.published ? (
                       <CheckCircle className="w-5 h-5 text-green-400" />
                     ) : (
                       <EyeOff className="w-5 h-5 text-gray-500" />
@@ -338,7 +358,9 @@ function LessonForm({
     title: lesson?.title || "",
     titleAmharic: lesson?.titleAmharic || "",
     description: lesson?.description || "",
+    type: lesson?.type || "VIDEO",
     youtubeUrl: lesson?.youtubeUrl || "",
+    pdfUrl: lesson?.pdfUrl || "",
     lessonNumber: lesson?.lessonNumber || 1,
     duration: lesson?.duration || 0,
     volumeId: lesson?.volumeId || volumeId,
@@ -346,7 +368,7 @@ function LessonForm({
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
@@ -362,12 +384,32 @@ function LessonForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate YouTube URL for Video type
+    if (formData.type === "VIDEO" && !formData.youtubeUrl) {
+      alert("YouTube URL is required for video lessons");
+      return;
+    }
     onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Lesson Type *
+          </label>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-gold/50"
+          >
+            <option value="VIDEO" className="bg-primary-dark">Video Lesson</option>
+            <option value="BOOK" className="bg-primary-dark">Book / Digital Content</option>
+          </select>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Lesson Number *
@@ -382,67 +424,83 @@ function LessonForm({
             className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
           />
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Title *
+          </label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            placeholder="e.g., Introduction to Genesis"
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            Duration (seconds)
+            Title (Amharic)
           </label>
           <input
-            type="number"
-            name="duration"
-            value={formData.duration}
+            type="text"
+            name="titleAmharic"
+            value={formData.titleAmharic}
             onChange={handleChange}
-            min="0"
             className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
           />
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Title *
-        </label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., Introduction to Genesis"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Title (Amharic)
-        </label>
-        <input
-          type="text"
-          name="titleAmharic"
-          value={formData.titleAmharic}
-          onChange={handleChange}
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          YouTube URL *
-        </label>
-        <input
-          type="url"
-          name="youtubeUrl"
-          value={formData.youtubeUrl}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="https://www.youtube.com/watch?v=..."
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          Full YouTube video URL (thumbnail will be extracted automatically)
-        </p>
-      </div>
+      {formData.type === "VIDEO" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              YouTube URL *
+            </label>
+            <input
+              type="url"
+              name="youtubeUrl"
+              value={formData.youtubeUrl}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Duration (seconds)
+            </label>
+            <input
+              type="number"
+              name="duration"
+              value={formData.duration}
+              onChange={handleChange}
+              min="0"
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            />
+          </div>
+        </div>
+      ) : (
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            PDF / Document URL
+          </label>
+          <input
+            type="url"
+            name="pdfUrl"
+            value={formData.pdfUrl}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            placeholder="https://..."
+          />
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">

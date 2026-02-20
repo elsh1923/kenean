@@ -122,7 +122,9 @@ model Lesson {
   title        String
   titleAmharic String?  // Amharic translation
   description  String?
-  youtubeUrl   String   // YouTube embed URL
+  type         LessonType @default(VIDEO)
+  youtubeUrl   String?  // YouTube embed URL (optional for books)
+  pdfUrl       String?  // PDF URL for books
   thumbnailUrl String?  // Cached thumbnail from YouTube or Cloudinary
   lessonNumber Int
   duration     Int?     // Duration in seconds
@@ -136,6 +138,11 @@ model Lesson {
 
   @@unique([volumeId, lessonNumber])
   @@map("lesson")
+}
+
+enum LessonType {
+  VIDEO
+  BOOK
 }
 
 model Question {

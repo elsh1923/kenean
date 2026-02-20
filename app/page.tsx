@@ -27,7 +27,7 @@ export default async function Home() {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=2070&auto=format&fit=crop"
+            src="/kenean-landpage.jpg"
             alt="Ancient Orthodox Script"
             fill
             className="object-cover"
