@@ -32,9 +32,17 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
   },
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL || "http://localhost:3000",
-  ],
+  trustedOrigins: async (request) => {
+    const baseOrigin = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+    if (!request) {
+      return [baseOrigin];
+    }
+    const origin = request.headers.get("origin");
+    if (origin) {
+      return [baseOrigin, origin];
+    }
+    return [baseOrigin];
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
