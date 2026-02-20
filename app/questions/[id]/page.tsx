@@ -1,4 +1,5 @@
 import { getQuestion, getAnsweredQuestions } from "@/actions";
+import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, User, Calendar, MessageSquare, ShieldCheck, Share2, CornerDownRight } from "lucide-react";
@@ -10,7 +11,11 @@ export default async function QuestionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const result = await getQuestion(id);
+  const [result, lang, dict] = await Promise.all([
+    getQuestion(id),
+    getServerLanguage(),
+    getServerDict(),
+  ]);
 
   if (!result.success || !result.data) {
     notFound();
@@ -25,15 +30,15 @@ export default async function QuestionDetailPage({
     : [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-serif">
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-12">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-12 font-sans">
+          <Link href="/" className="hover:text-primary transition-colors">{(dict as any).qa.backToHome}</Link>
           <span>/</span>
-          <Link href="/questions" className="hover:text-primary transition-colors">Q&A</Link>
+          <Link href="/questions" className="hover:text-primary transition-colors">{(dict as any).nav.qa}</Link>
           <span>/</span>
-          <span className="text-primary font-medium truncate">Question Details</span>
+          <span className="text-primary font-medium truncate">{(dict as any).qa.questionDetails}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
@@ -50,19 +55,19 @@ export default async function QuestionDetailPage({
                     <User className="w-5 h-5" />
                   )}
                 </div>
-                <div>
+                <div className="font-sans">
                   <h3 className="text-sm font-bold text-foreground">
-                    {question.user.name || "Anonymous User"}
+                    {question.user.name || (dict as any).qa.anonymousUser}
                   </h3>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
-                      {new Date(question.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {new Date(question.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET", { year: 'numeric', month: 'long', day: 'numeric' })}
                     </span>
                     {question.lesson && (
                       <span className="flex items-center gap-1">
                         <MessageSquare className="w-3.5 h-3.5" />
-                        Regarding: {question.lesson.title}
+                        {(dict as any).qa.regarding}: {lang === "am" ? (question.lesson.titleAmharic || question.lesson.title) : lang === "gz" ? (question.lesson.titleGeez || question.lesson.title) : question.lesson.title}
                       </span>
                     )}
                   </div>
@@ -90,12 +95,12 @@ export default async function QuestionDetailPage({
                       <ShieldCheck className="w-8 h-8" />
                     )}
                   </div>
-                  <div>
+                  <div className="font-sans">
                     <div className="text-[10px] uppercase tracking-[0.2em] font-black text-accent mb-1 border-b border-accent/20 pb-1 inline-block">
-                      Official Response
+                      {(dict as any).qa.officialResponse}
                     </div>
                     <h3 className="text-xl font-serif font-bold text-foreground">
-                      Answered by {question.answer.author.name}
+                      {(dict as any).qa.answeredBy} {question.answer.author.name}
                     </h3>
                   </div>
                   <div className="ml-auto">
@@ -106,15 +111,15 @@ export default async function QuestionDetailPage({
                 </div>
 
                 <div className="prose prose-invert max-w-none">
-                  <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                  <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap font-serif">
                     {question.answer.content}
                   </p>
                 </div>
 
                 {question.answer.attachments && question.answer.attachments.length > 0 && (
                   <div className="mt-12 pt-8 border-t border-border">
-                    <h4 className="text-sm font-bold text-foreground mb-4">Supporting Materials</h4>
-                    <div className="flex flex-wrap gap-4">
+                    <h4 className="text-sm font-bold text-foreground mb-4 font-sans">{(dict as any).qa.supportingMaterials}</h4>
+                    <div className="flex flex-wrap gap-4 font-sans">
                       {question.answer.attachments.map((url: string, idx: number) => (
                         <a 
                           key={idx} 
@@ -124,7 +129,7 @@ export default async function QuestionDetailPage({
                           className="px-4 py-2 bg-secondary/50 rounded-lg text-xs font-medium hover:bg-accent/10 hover:text-accent transition-all flex items-center gap-2"
                         >
                           <CornerDownRight className="w-3.5 h-3.5" />
-                          View Attachment {idx + 1}
+                          {(dict as any).qa.viewAttachment} {idx + 1}
                         </a>
                       ))}
                     </div>
@@ -134,9 +139,9 @@ export default async function QuestionDetailPage({
             ) : (
               <div className="bg-secondary/20 border border-dashed border-border rounded-3xl p-12 text-center">
                 <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-xl font-serif font-bold text-foreground">Under Review</h3>
-                <p className="text-muted-foreground mt-2">
-                  Our teachers are currently preparing an answer for this question.
+                <h3 className="text-xl font-serif font-bold text-foreground">{(dict as any).qa.underReview}</h3>
+                <p className="text-muted-foreground mt-2 font-sans">
+                  {(dict as any).qa.underReviewDesc}
                 </p>
               </div>
             )}
@@ -148,20 +153,20 @@ export default async function QuestionDetailPage({
             <div>
               <h3 className="text-xl font-serif font-bold text-primary mb-6 flex items-center gap-2">
                 <span className="w-1 h-6 bg-accent rounded-full" />
-                Explore Related
+                {(dict as any).qa.exploreRelated}
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-4 font-sans">
                 {relatedQuestions.map((rel: any) => (
                   <Link 
                     key={rel.id} 
                     href={`/questions/${rel.id}`}
                     className="block group bg-card/40 border border-border rounded-xl p-4 hover:border-accent/40 transition-all"
                   >
-                    <p className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                    <p className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors mb-2 font-serif">
                       "{rel.content}"
                     </p>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                      {new Date(rel.createdAt).toLocaleDateString()}
+                      {new Date(rel.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET")}
                     </span>
                   </Link>
                 ))}
@@ -170,15 +175,15 @@ export default async function QuestionDetailPage({
 
             {/* Need help? */}
             <div className="bg-accent/5 border border-accent/20 rounded-3xl p-8 text-center">
-              <h3 className="font-serif font-bold text-primary mb-4">Your turn?</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Have a similar but different question? Don't hesitate to ask our community.
+              <h3 className="font-serif font-bold text-primary mb-4">{(dict as any).qa.yourTurn}</h3>
+              <p className="text-sm text-muted-foreground mb-6 font-sans">
+                {(dict as any).qa.yourTurnDesc}
               </p>
               <Link
                 href="/questions/new"
-                className="block w-full py-4 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-accent transition-all"
+                className="block w-full py-4 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-accent transition-all font-sans"
               >
-                Ask a Question
+                {(dict as any).qa.askQuestion}
               </Link>
             </div>
           </aside>

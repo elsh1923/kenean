@@ -9,7 +9,10 @@ import { z } from "zod";
 const createCategorySchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   nameAmharic: z.string().optional(),
+  nameGeez: z.string().optional(),
   description: z.string().optional(),
+  descriptionAmharic: z.string().optional(),
+  descriptionGeez: z.string().optional(),
   slug: z.string().min(1, "Slug is required").max(100),
   order: z.number().int().default(0),
 });

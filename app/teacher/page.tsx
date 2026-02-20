@@ -1,15 +1,20 @@
 import { getAdminStats } from "@/actions";
+import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 import { StatCard } from "@/components/admin/StatCard";
 import Link from "next/link";
 import { MessageSquare, Clock, CheckCircle, AlertCircle } from "lucide-react";
 
 export default async function TeacherDashboard() {
-  const statsResult = await getAdminStats();
+  const [statsResult, lang, dict] = await Promise.all([
+    getAdminStats(),
+    getServerLanguage(),
+    getServerDict(),
+  ]);
 
   if (!statsResult.success || !statsResult.data) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-400">{statsResult.error || "Failed to load stats"}</p>
+        <p className="text-red-400">{statsResult.error || (dict as any).common.error}</p>
       </div>
     );
   }
@@ -17,36 +22,36 @@ export default async function TeacherDashboard() {
   const { questions } = statsResult.data;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-serif font-bold text-gold mb-2">
-          Teacher Dashboard
+          {(dict as any).teacher.teacherDashboard}
         </h1>
         <p className="text-gray-300">
-          Welcome to your spiritual teaching workspace
+          {(dict as any).teacher.welcomeTeacher}
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Questions"
+          title={(dict as any).teacher.totalQuestions}
           value={questions.total}
           icon="MessageSquare"
         />
         <StatCard
-          title="Pending"
+          title={(dict as any).teacher.pending}
           value={questions.pending}
           icon="Clock"
         />
         <StatCard
-          title="Claimed"
+          title={(dict as any).teacher.claimed}
           value={questions.claimed}
           icon="AlertCircle"
         />
         <StatCard
-          title="Answered"
+          title={(dict as any).teacher.answered}
           value={questions.answered}
           icon="CheckCircle"
         />
@@ -55,19 +60,19 @@ export default async function TeacherDashboard() {
       {/* Quick Actions */}
       <div className="mt-12">
         <h2 className="text-2xl font-serif font-bold text-gold mb-6">
-          Teaching Tasks
+          {(dict as any).teacher.teachingTasks}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TeacherQuickAction
-            title="Answer Pending Questions"
-            description={`${questions.pending} questions waiting for a response`}
+            title={(dict as any).teacher.answerPending}
+            description={`${questions.pending} ${(dict as any).teacher.waitingResponse}`}
             href="/teacher/questions?status=PENDING"
             icon={Clock}
             badge={questions.pending}
           />
           <TeacherQuickAction
-            title="Your Claimed Questions"
-            description={`${questions.claimed} questions you are currently answering`}
+            title={(dict as any).teacher.yourClaimed}
+            description={`${questions.claimed} ${(dict as any).teacher.currentlyAnswering}`}
             href="/teacher/questions?status=CLAIMED"
             icon={CheckCircle}
           />
@@ -96,7 +101,7 @@ function TeacherQuickAction({
       className="relative group block p-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl hover:border-gold/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
     >
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-2 -right-2 flex items-center justify-center w-8 h-8 bg-gold text-primary-dark text-sm font-bold rounded-full border-2 border-primary-dark">
+        <span className="absolute -top-2 -right-2 flex items-center justify-center w-8 h-8 bg-gold text-primary-dark text-sm font-bold rounded-full border-2 border-primary-dark font-sans">
           {badge}
         </span>
       )}

@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { getMyProfile, updateMyProfile } from "@/actions";
 import { User, Mail, Shield, Calendar, Loader2, CheckCircle } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageContext";
 
 export default function TeacherProfilePage() {
+  const { dict } = useLanguage();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -32,10 +34,10 @@ export default function TeacherProfilePage() {
 
     const result = await updateMyProfile({ name });
     if (result.success) {
-      setMessage({ type: "success", text: "Profile updated successfully" });
+      setMessage({ type: "success", text: (dict as any).profile.success });
       setProfile({ ...profile, name });
     } else {
-      setMessage({ type: "error", text: result.error || "Failed to update profile" });
+      setMessage({ type: "error", text: result.error || (dict as any).common.error });
     }
     setUpdating(false);
   };
@@ -49,10 +51,10 @@ export default function TeacherProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 font-sans">
       <div>
-        <h1 className="text-4xl font-serif font-bold text-gold mb-2">My Profile</h1>
-        <p className="text-gray-300">Manage your teacher account information</p>
+        <h1 className="text-4xl font-serif font-bold text-gold mb-2">{(dict as any).profile.title}</h1>
+        <p className="text-gray-300">{(dict as any).teacher.teacherInfo}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -66,7 +68,7 @@ export default function TeacherProfilePage() {
                 <User className="w-12 h-12 text-gold" />
               )}
             </div>
-            <h2 className="text-xl font-bold text-white">{profile.name || "Teacher"}</h2>
+            <h2 className="text-xl font-bold text-white">{profile.name || (dict as any).profile.unnamedUser}</h2>
             <p className="text-gray-400 text-sm mb-4">{profile.email}</p>
             <span className="px-3 py-1 bg-gold/20 text-gold rounded-full text-xs font-bold uppercase tracking-wider">
               {profile.role}
@@ -77,22 +79,22 @@ export default function TeacherProfilePage() {
             <div className="flex items-center gap-3 text-gray-300">
               <Shield className="w-5 h-5 text-gold" />
               <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">Role</p>
-                <p className="text-sm font-medium">Spiritual Teacher</p>
+                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).profile.editProfile}</p>
+                <p className="text-sm font-medium">{(dict as any).teacher.teacherRole}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-gray-300">
               <Calendar className="w-5 h-5 text-gold" />
               <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">Joined</p>
+                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).teacher.joinedLabel}</p>
                 <p className="text-sm font-medium">{new Date(profile.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-gray-300">
               <CheckCircle className="w-5 h-5 text-gold" />
               <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">Answers</p>
-                <p className="text-sm font-medium">{profile._count.answers} Answers Provided</p>
+                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).teacher.answersLabel}</p>
+                <p className="text-sm font-medium">{profile._count.answers} {(dict as any).teacher.answersProvided}</p>
               </div>
             </div>
           </div>
@@ -101,7 +103,7 @@ export default function TeacherProfilePage() {
         {/* Edit Form */}
         <div className="md:col-span-2">
           <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl p-8">
-            <h3 className="text-2xl font-serif font-bold text-gold mb-6">Account Settings</h3>
+            <h3 className="text-2xl font-serif font-bold text-gold mb-6">{(dict as any).teacher.accountSettings}</h3>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {message.text && (
@@ -113,24 +115,24 @@ export default function TeacherProfilePage() {
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Full Name</label>
+                <label className="text-sm font-medium text-gray-300">{(dict as any).profile.fullName}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-                  placeholder="Your full name"
+                  placeholder={(dict as any).auth.namePlaceholder}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Email Address</label>
+                <label className="text-sm font-medium text-gray-300">{(dict as any).auth.email}</label>
                 <div className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-500">
                   <Mail className="w-5 h-5" />
                   <span>{profile.email}</span>
                 </div>
-                <p className="text-[10px] text-gray-500 italic">Email cannot be changed by staff. Contact support if needed.</p>
+                <p className="text-[10px] text-gray-500 italic">{(dict as any).profile.emailCannotChange}</p>
               </div>
 
               <button
@@ -141,10 +143,10 @@ export default function TeacherProfilePage() {
                 {updating ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Updating...
+                    {(dict as any).profile.saving}
                   </>
                 ) : (
-                  "Save Changes"
+                  (dict as any).common.save
                 )}
               </button>
             </form>

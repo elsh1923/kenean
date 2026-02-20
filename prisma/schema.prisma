@@ -86,14 +86,17 @@ model Verification {
 // ==========================================
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  nameAmharic String?  // Amharic translation
-  description String?
-  slug        String   @unique
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String   @unique
+  nameAmharic        String?  // Amharic translation
+  nameGeez           String?  // Geez translation
+  description        String?
+  descriptionAmharic String?  // Amharic translation
+  descriptionGeez    String?  // Geez translation
+  slug               String   @unique
+  order              Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   volumes Volume[]
 
@@ -101,14 +104,17 @@ model Category {
 }
 
 model Volume {
-  id           String   @id @default(cuid())
-  title        String
-  titleAmharic String?  // Amharic translation
-  description  String?
-  volumeNumber Int
-  categoryId   String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  title              String
+  titleAmharic       String?  // Amharic translation
+  titleGeez          String?  // Geez translation
+  description        String?
+  descriptionAmharic String?  // Amharic translation
+  descriptionGeez    String?  // Geez translation
+  volumeNumber       Int
+  categoryId         String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   lessons  Lesson[]
@@ -118,20 +124,23 @@ model Volume {
 }
 
 model Lesson {
-  id           String   @id @default(cuid())
-  title        String
-  titleAmharic String?  // Amharic translation
-  description  String?
-  type         LessonType @default(VIDEO)
-  youtubeUrl   String?  // YouTube embed URL (optional for books)
-  pdfUrl       String?  // PDF URL for books
-  thumbnailUrl String?  // Cached thumbnail from YouTube or Cloudinary
-  lessonNumber Int
-  duration     Int?     // Duration in seconds
-  volumeId     String
-  published    Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  title              String
+  titleAmharic       String?  // Amharic translation
+  titleGeez          String?  // Geez translation
+  description        String?
+  descriptionAmharic String?  // Amharic translation
+  descriptionGeez    String?  // Geez translation
+  type               LessonType @default(VIDEO)
+  youtubeUrl         String?  // YouTube embed URL (optional for books)
+  pdfUrl             String?  // PDF URL for books
+  thumbnailUrl       String?  // Cached thumbnail from YouTube or Cloudinary
+  lessonNumber       Int
+  duration           Int?     // Duration in seconds
+  volumeId           String
+  published          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   volume    Volume     @relation(fields: [volumeId], references: [id], onDelete: Cascade)
   questions Question[]

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { submitQuestion } from "@/actions";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Send, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageContext";
 
 interface QuestionFormProps {
   lessonId?: string;
@@ -11,6 +12,7 @@ interface QuestionFormProps {
 }
 
 export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
+  const { dict } = useLanguage();
   const router = useRouter();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,10 +39,10 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
           router.refresh();
         }, 2000);
       } else {
-        setError(result.error || "Failed to submit question");
+        setError(result.error || (dict as any).common.error);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError((dict as any).common.error);
     } finally {
       setLoading(false);
     }
@@ -52,11 +54,11 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
         <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-2xl font-serif font-bold text-white mb-2">Question Submitted!</h3>
+        <h3 className="text-2xl font-serif font-bold text-white mb-2">{(dict as any).qa.questionSubmitted}</h3>
         <p className="text-green-600/80 max-w-sm mx-auto">
-          Your question has been sent to our teachers. You will be notified when it is answered.
+          {(dict as any).qa.questionSubmittedDesc}
         </p>
-        <p className="text-sm text-muted-foreground mt-4 italic">Redirecting to Q&A gallery...</p>
+        <p className="text-sm text-muted-foreground mt-4 italic">{(dict as any).qa.redirecting}</p>
       </div>
     );
   }
@@ -68,12 +70,12 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
           <MessageSquare className="w-6 h-6 text-accent" />
         </div>
         <div>
-          <h2 className="text-2xl font-serif font-bold text-white">Ask a Question</h2>
+          <h2 className="text-2xl font-serif font-bold text-white">{(dict as any).qa.askQuestion}</h2>
           <p className="text-sm text-muted-foreground">
             {lessonTitle ? (
-              <>Question regarding: <span className="text-primary font-medium">{lessonTitle}</span></>
+              <>{(dict as any).qa.regarding}: <span className="text-primary font-medium">{lessonTitle}</span></>
             ) : (
-              "Seek guidance on spiritual matters"
+              (dict as any).qa.seekGuidance
             )}
           </p>
         </div>
@@ -89,21 +91,21 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
 
         <div className="space-y-2">
           <label htmlFor="content" className="block text-sm font-medium text-gray-300">
-            Your Question *
+            {(dict as any).qa.yourQuestion} *
           </label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
-            placeholder="Write your question clearly here..."
-            className="w-full h-40 bg-secondary/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none"
+            placeholder="..."
+            className="w-full h-40 bg-secondary/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none font-serif"
             minLength={10}
             maxLength={2000}
           />
           <div className="flex justify-between text-[10px] uppercase tracking-widest font-bold">
             <span className={content.length < 10 ? "text-red-500" : "text-muted-foreground"}>
-              Min. 10 characters
+              {(dict as any).qa.minChars}
             </span>
             <span className="text-muted-foreground">
               {content.length} / 2000
@@ -119,18 +121,18 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Submitting...
+              {(dict as any).qa.submitting}
             </>
           ) : (
             <>
               <Send className="w-5 h-5" />
-              Submit Question
+              {(dict as any).qa.submitQuestion}
             </>
           )}
         </button>
         
         <p className="text-xs text-center text-muted-foreground">
-          Note: Questions are reviewed and answered by teachers. Only answered questions are made public.
+          {(dict as any).qa.reviewNote}
         </p>
       </form>
     </div>

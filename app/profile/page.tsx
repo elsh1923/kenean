@@ -1,4 +1,5 @@
-import { getMyProfile } from "@/actions";
+import { getLesson, getMyProfile } from "@/actions";
+import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { ProfileClient } from "@/components/profile/ProfileClient";
@@ -30,14 +31,16 @@ export default async function ProfilePage() {
   }
 
   const user = profileResult.data;
+  const lang = await getServerLanguage();
+  const dict = await getServerDict();
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4 font-serif">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <div>
-          <h1 className="font-serif text-4xl font-bold text-primary mb-1">My Profile</h1>
-          <p className="text-muted-foreground">Manage your account details</p>
+          <h1 className="text-4xl font-bold text-primary mb-1">{(dict as any).profile.title}</h1>
+          <p className="text-muted-foreground font-sans">{(dict as any).profile.subtitle}</p>
         </div>
 
         {/* Avatar Card */}
@@ -52,7 +55,7 @@ export default async function ProfilePage() {
                 className="w-24 h-24 rounded-full object-cover ring-4 ring-accent/30"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold font-serif ring-4 ring-accent/30">
+              <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold ring-4 ring-accent/30">
                 {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
               </div>
             )}
@@ -61,12 +64,12 @@ export default async function ProfilePage() {
           {/* User Info */}
           <div className="flex-1 text-center sm:text-left space-y-3">
             <div>
-              <h2 className="text-2xl font-serif font-bold text-foreground">
-                {user.name || "Unnamed User"}
+              <h2 className="text-2xl font-bold text-foreground">
+                {user.name || (dict as any).profile.unnamedUser}
               </h2>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
                 <span
-                  className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                  className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider font-sans ${
                     user.role === "admin"
                       ? "bg-accent/20 text-accent border border-accent/40"
                       : "bg-secondary text-primary border border-border"
@@ -80,24 +83,24 @@ export default async function ProfilePage() {
                   {user.role}
                 </span>
                 {user.emailVerified && (
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/30">
+                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/30 font-sans">
                     <CheckCircle2 className="w-3 h-3" />
-                    Verified
+                    {(dict as any).profile.verified}
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="space-y-1 text-sm text-muted-foreground">
+            <div className="space-y-1 text-sm text-muted-foreground font-sans">
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <Mail className="w-4 h-4" />
                 <span>{user.email}</span>
               </div>
               <div className="flex items-center justify-center sm:justify-start gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>
-                  Member since{" "}
-                  {new Date(user.createdAt).toLocaleDateString("en-US", {
+                <span className="font-serif">
+                  {(dict as any).profile.memberSince}{" "}
+                  {new Date(user.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -112,17 +115,17 @@ export default async function ProfilePage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
             <MessageCircleQuestion className="w-8 h-8 text-accent mx-auto mb-2" />
-            <div className="text-3xl font-bold text-primary font-serif">
+            <div className="text-3xl font-bold text-primary">
               {user._count.questions}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">Questions Asked</div>
+            <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.questionsAsked}</div>
           </div>
           <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
             <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-primary font-serif">
+            <div className="text-3xl font-bold text-primary">
               {user._count.answers}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">Answers Given</div>
+            <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.answersGiven}</div>
           </div>
         </div>
 

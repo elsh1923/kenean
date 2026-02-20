@@ -1,10 +1,14 @@
 import { LoginForm } from "@/components/auth/login-form";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, Loader2 } from "lucide-react";
+import { BookOpen, Loader2, GraduationCap } from "lucide-react";
 import React, { Suspense } from "react";
+import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const lang = await getServerLanguage();
+  const dict = await getServerDict();
+
   return (
     <main className="min-h-screen relative flex items-center justify-center py-12 px-4 overflow-hidden bg-background">
       {/* Background with texture/image overlay matching home page hero */}
@@ -36,10 +40,10 @@ export default function LoginPage() {
           </Link>
           
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">
-            Welcome Back<span className="text-accent">.</span>
+            {(dict as any).auth.welcomeBack}<span className="text-accent">.</span>
           </h1>
-          <p className="text-muted-foreground max-w-sm mx-auto font-light text-lg">
-            Continue your journey through the timeless wisdom of the Orthodox faith.
+          <p className="text-muted-foreground max-w-sm mx-auto font-light text-lg font-serif">
+            {(dict as any).auth.loginSubtitle}
           </p>
         </div>
 
@@ -52,8 +56,8 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-medium">
-            Orthodox Christian Learning Hub © {new Date().getFullYear()}
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-medium font-serif">
+            {lang === "en" ? "Orthodox Christian Learning Hub" : lang === "am" ? "የኦርቶዶክስ ክርስቲያን መማሪያ ማዕከል" : "ማዕከለ ጥበብ ዘክርስቲያን"} © {new Date().getFullYear()}
           </p>
         </div>
       </div>

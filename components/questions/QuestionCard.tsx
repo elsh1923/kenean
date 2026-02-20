@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MessageSquare, Calendar, ChevronRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/LanguageContext";
 
 interface QuestionCardProps {
   question: {
@@ -16,6 +17,8 @@ interface QuestionCardProps {
     lesson?: {
       id: string;
       title: string;
+      titleAmharic?: string;
+      titleGeez?: string;
     } | null;
     answer?: {
       createdAt: Date | string;
@@ -28,6 +31,14 @@ interface QuestionCardProps {
 }
 
 export function QuestionCard({ question, className }: QuestionCardProps) {
+  const { language: lang } = useLanguage();
+
+  const lessonTitle = lang === "am" 
+    ? (question.lesson?.titleAmharic || question.lesson?.title) 
+    : lang === "gz" 
+    ? (question.lesson?.titleGeez || question.lesson?.title) 
+    : question.lesson?.title;
+
   return (
     <Link
       href={`/questions/${question.id}`}
@@ -36,7 +47,7 @@ export function QuestionCard({ question, className }: QuestionCardProps) {
         className
       )}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full font-serif">
         {/* Header: User & Date */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -53,13 +64,13 @@ export function QuestionCard({ question, className }: QuestionCardProps) {
               )}
             </div>
             <span className="text-sm font-medium text-foreground">
-              {question.user.name || "Anonymous User"}
+              {question.user.name || (lang === "en" ? "Anonymous User" : lang === "am" ? "ማንነቱ ያልታወቀ ተጠቃሚ" : "Anonymous User")}
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Calendar className="w-3.5 h-3.5" />
             <span>
-              {new Date(question.createdAt).toLocaleDateString("en-US", {
+              {new Date(question.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET", {
                 month: "short",
                 day: "numeric",
               })}
@@ -69,7 +80,7 @@ export function QuestionCard({ question, className }: QuestionCardProps) {
 
         {/* Content */}
         <div className="flex-1">
-          <p className="text-lg font-serif font-medium text-foreground line-clamp-3 mb-4 group-hover:text-primary transition-colors">
+          <p className="text-lg font-medium text-foreground line-clamp-3 mb-4 group-hover:text-primary transition-colors">
             "{question.content}"
           </p>
         </div>
@@ -79,22 +90,22 @@ export function QuestionCard({ question, className }: QuestionCardProps) {
           <div className="flex flex-col gap-1">
             {question.lesson ? (
               <span className="text-[10px] font-bold uppercase tracking-widest text-accent/60">
-                Lesson: {question.lesson.title}
+                {lang === "en" ? "Lesson" : lang === "am" ? "ትምህርት" : "ትምህርት"}: {lessonTitle}
               </span>
             ) : (
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                General Question
+                {lang === "en" ? "General Question" : lang === "am" ? "አጠቃላይ ጥያቄ" : "ተሰእሎ"}
               </span>
             )}
             {question.answer && (
               <span className="text-[10px] font-bold text-green-500/80 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Answered by {question.answer.author.name}
+                {lang === "en" ? "Answered by" : lang === "am" ? "በ... ተመልሷል" : "ተመልሰ እም:"} {question.answer.author.name}
               </span>
             )}
           </div>
           <div className="flex items-center text-accent text-sm font-bold group-hover:translate-x-1 transition-transform">
-            View <ChevronRight className="w-4 h-4 ml-0.5" />
+            {lang === "en" ? "View" : lang === "am" ? "ይመልከቱ" : "ርኢ"} <ChevronRight className="w-4 h-4 ml-0.5" />
           </div>
         </div>
       </div>

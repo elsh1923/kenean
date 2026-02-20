@@ -194,6 +194,9 @@ export default function CategoriesPage() {
   );
 }
 
+import { translateToGeez } from "@/lib/gemini";
+import { Sparkles, Loader2 } from "lucide-react";
+
 function CategoryForm({
   category,
   onSubmit,
@@ -206,10 +209,16 @@ function CategoryForm({
   const [formData, setFormData] = useState({
     name: category?.name || "",
     nameAmharic: category?.nameAmharic || "",
+    nameGeez: category?.nameGeez || "",
     description: category?.description || "",
+    descriptionAmharic: category?.descriptionAmharic || "",
+    descriptionGeez: category?.descriptionGeez || "",
     slug: category?.slug || "",
     order: category?.order || 0,
   });
+
+  const [isTranslatingName, setIsTranslatingName] = useState(false);
+  const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -221,51 +230,107 @@ function CategoryForm({
     }));
   };
 
+  const handleTranslate = async (field: "name" | "description") => {
+    const textToTranslate = field === "name" ? formData.name : formData.description;
+    if (!textToTranslate) return;
+
+    if (field === "name") setIsTranslatingName(true);
+    else setIsTranslatingDesc(true);
+
+    try {
+      // We'll use the server action we're about to create
+      const { translateToGeezAction } = await import("@/actions/translate");
+      const result = await translateToGeezAction(textToTranslate);
+      
+      if (result.success && result.data) {
+        setFormData(prev => ({
+          ...prev,
+          [field === "name" ? "nameGeez" : "descriptionGeez"]: result.data
+        }));
+      } else {
+        alert(result.error || "Translation failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred during translation");
+    } finally {
+      if (field === "name") setIsTranslatingName(false);
+      else setIsTranslatingDesc(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Name *
-        </label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., Old Testament"
-        />
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Name (English) *
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            placeholder="e.g., Old Testament"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Name (Amharic)
+          </label>
+          <input
+            type="text"
+            name="nameAmharic"
+            value={formData.nameAmharic}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-amharic"
+            placeholder="ብሉይ ኪዳን"
+          />
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Name (Amharic)
+        <label className="flex items-center justify-between text-sm font-medium text-gray-300 mb-2">
+          <span>Name (Geez)</span>
+          <button
+            type="button"
+            onClick={() => handleTranslate("name")}
+            disabled={isTranslatingName || !formData.name}
+            className="flex items-center gap-1.5 px-2 py-1 text-[10px] bg-gold/10 text-gold border border-gold/30 rounded-md hover:bg-gold/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isTranslatingName ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            Auto-translate
+          </button>
         </label>
         <input
           type="text"
-          name="nameAmharic"
-          value={formData.nameAmharic}
+          name="nameGeez"
+          value={formData.nameGeez}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., ብሉይ ኪዳን"
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-geez"
+          placeholder="ብሉይ ኪዳን"
         />
       </div>
 
+      <div className="h-px bg-white/5 my-2" />
+
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Description
+          Description (English)
         </label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
-          rows={3}
+          rows={2}
           className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
           placeholder="Brief description of the category"
         />
@@ -273,40 +338,72 @@ function CategoryForm({
 
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Slug *
+          Description (Amharic)
         </label>
-        <input
-          type="text"
-          name="slug"
-          value={formData.slug}
+        <textarea
+          name="descriptionAmharic"
+          value={formData.descriptionAmharic}
           onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., old-testament"
+          rows={2}
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-amharic"
+          placeholder="የምድብ መግለጫ"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          URL-friendly identifier (lowercase, hyphens only)
-        </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Order
+        <label className="flex items-center justify-between text-sm font-medium text-gray-300 mb-2">
+          <span>Description (Geez)</span>
+          <button
+            type="button"
+            onClick={() => handleTranslate("description")}
+            disabled={isTranslatingDesc || !formData.description}
+            className="flex items-center gap-1.5 px-2 py-1 text-[10px] bg-gold/10 text-gold border border-gold/30 rounded-md hover:bg-gold/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isTranslatingDesc ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            Auto-translate
+          </button>
         </label>
-        <input
-          type="number"
-          name="order"
-          value={formData.order}
+        <textarea
+          name="descriptionGeez"
+          value={formData.descriptionGeez}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="0"
+          rows={2}
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-geez"
+          placeholder="መግለጫ ዘበልሳነ ግዕዝ"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Display order (lower numbers appear first)
-        </p>
       </div>
 
-      <div className="flex items-center gap-3 pt-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Slug *
+          </label>
+          <input
+            type="text"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            placeholder="old-testament"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Order
+          </label>
+          <input
+            type="number"
+            name="order"
+            value={formData.order}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 pt-4 sticky bottom-0 bg-primary-dark/95 py-2">
         <button
           type="submit"
           className="flex-1 px-6 py-3 bg-gold text-primary-dark rounded-lg font-semibold hover:bg-gold/90 transition-colors"

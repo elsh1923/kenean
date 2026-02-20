@@ -5,8 +5,10 @@ import { signIn } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Mail, Lock, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/LanguageContext";
 
 export function LoginForm() {
+  const { dict, language: lang } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export function LoginForm() {
       });
 
       if (authError) {
-        setError(authError.message || "Invalid credentials. Please try again.");
+        setError(authError.message || (lang === "en" ? "Invalid credentials. Please try again." : lang === "am" ? "የኪው መረጃ የተሳሳተ ነው። እባክዎ እንደገና ይሞክሩ።" : "ጌጋ ተረክበ።"));
       } else {
         // Redirect based on role
         const userRole = (data?.user as any)?.role;
@@ -43,7 +45,7 @@ export function LoginForm() {
         window.location.href = targetUrl;
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again later.");
+      setError(lang === "en" ? "An unexpected error occurred. Please try again later." : lang === "am" ? "ያልተጠበቀ ስህተት ተከስቷል። እባክዎ ቆይተው እንደገና ይሞክሩ።" : "ጌጋ ተረክበ።");
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ export function LoginForm() {
 
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 font-serif">
       {error && (
         <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-lg flex items-start gap-3 text-red-500 dark:text-red-400 text-sm animate-in fade-in slide-in-from-top-1">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -61,14 +63,14 @@ export function LoginForm() {
 
       <div className="space-y-2">
         <label className="text-xs font-bold text-primary uppercase tracking-widest ml-1" htmlFor="email">
-          Email Address
+          {(dict as any).auth.email}
         </label>
         <div className="relative group">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent transition-colors duration-300" />
           <input
             id="email"
             type="email"
-            placeholder="your@email.com"
+            placeholder={(dict as any).auth.emailPlaceholder}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -80,13 +82,13 @@ export function LoginForm() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-primary uppercase tracking-widest ml-1" htmlFor="password">
-            Password
+            {(dict as any).auth.password}
           </label>
           <Link 
             href="/forgot-password" 
             className="text-[10px] text-muted-foreground hover:text-accent transition-colors duration-300 font-medium uppercase tracking-wider"
           >
-            Forgot?
+            {(dict as any).auth.forgotPassword}
           </Link>
         </div>
         <div className="relative group">
@@ -112,7 +114,7 @@ export function LoginForm() {
           <Loader2 className="w-5 h-5 animate-spin mx-auto" />
         ) : (
           <span className="flex items-center justify-center gap-2">
-            Sign In
+            {(dict as any).auth.signIn}
             <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
           </span>
         )}
@@ -120,9 +122,9 @@ export function LoginForm() {
 
       <div className="text-center pt-2">
         <p className="text-muted-foreground text-sm">
-          Don't have an account?{" "}
+          {(dict as any).auth.dontHaveAccount}{" "}
           <Link href="/register" className="text-primary hover:text-accent font-bold transition-all duration-300 underline underline-offset-4 decoration-primary/20 hover:decoration-accent">
-            Create Free Account
+            {(dict as any).auth.createAccount}
           </Link>
         </p>
       </div>

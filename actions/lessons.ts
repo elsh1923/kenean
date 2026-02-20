@@ -9,7 +9,10 @@ import { z } from "zod";
 const lessonBaseSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   titleAmharic: z.string().optional(),
+  titleGeez: z.string().optional(),
   description: z.string().optional(),
+  descriptionAmharic: z.string().optional(),
+  descriptionGeez: z.string().optional(),
   type: z.enum(["VIDEO", "BOOK"]).default("VIDEO"),
   youtubeUrl: z.string().url("Invalid YouTube URL").optional().or(z.literal("")),
   pdfUrl: z.string().url("Invalid PDF URL").optional().or(z.literal("")),

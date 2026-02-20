@@ -2,8 +2,12 @@ import { RegisterForm } from "@/components/auth/register-form";
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
+import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const lang = await getServerLanguage();
+  const dict = await getServerDict();
+
   return (
     <main className="min-h-screen relative flex items-center justify-center py-12 px-4 overflow-hidden bg-background">
       {/* Background with texture/image overlay matching home page hero */}
@@ -35,10 +39,10 @@ export default function RegisterPage() {
           </Link>
           
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">
-            Join the Community<span className="text-accent">.</span>
+            {(dict as any).auth.joinCommunity}<span className="text-accent">.</span>
           </h1>
-          <p className="text-muted-foreground max-w-sm mx-auto font-light text-lg">
-            Discover the timeless wisdom of the Orthodox faith through a structured journey.
+          <p className="text-muted-foreground max-w-sm mx-auto font-light text-lg font-serif">
+            {(dict as any).auth.registerSubtitle}
           </p>
         </div>
 
@@ -49,8 +53,8 @@ export default function RegisterPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-medium">
-            Orthodox Christian Learning Hub © {new Date().getFullYear()}
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-medium font-serif">
+            {lang === "en" ? "Orthodox Christian Learning Hub" : lang === "am" ? "የኦርቶዶክስ ክርስቲያን መማሪያ ማዕከል" : "ማዕከለ ጥበብ ዘክርስቲያን"} © {new Date().getFullYear()}
           </p>
         </div>
       </div>

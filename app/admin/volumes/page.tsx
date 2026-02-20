@@ -218,6 +218,8 @@ export default function VolumesPage() {
   );
 }
 
+import { Sparkles, Loader2 } from "lucide-react";
+
 function VolumeForm({
   volume,
   categories,
@@ -232,10 +234,16 @@ function VolumeForm({
   const [formData, setFormData] = useState({
     title: volume?.title || "",
     titleAmharic: volume?.titleAmharic || "",
+    titleGeez: volume?.titleGeez || "",
     description: volume?.description || "",
+    descriptionAmharic: volume?.descriptionAmharic || "",
+    descriptionGeez: volume?.descriptionGeez || "",
     volumeNumber: volume?.volumeNumber || 1,
     categoryId: volume?.categoryId || categories[0]?.id || "",
   });
+
+  const [isTranslatingTitle, setIsTranslatingTitle] = useState(false);
+  const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -247,91 +255,185 @@ function VolumeForm({
     }));
   };
 
+  const handleTranslate = async (field: "title" | "description") => {
+    const textToTranslate = field === "title" ? formData.title : formData.description;
+    if (!textToTranslate) return;
+
+    if (field === "title") setIsTranslatingTitle(true);
+    else setIsTranslatingDesc(true);
+
+    try {
+      const { translateToGeezAction } = await import("@/actions/translate");
+      const result = await translateToGeezAction(textToTranslate);
+      
+      if (result.success && result.data) {
+        setFormData(prev => ({
+          ...prev,
+          [field === "title" ? "titleGeez" : "descriptionGeez"]: result.data
+        }));
+      } else {
+        alert(result.error || "Translation failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred during translation");
+    } finally {
+      if (field === "title") setIsTranslatingTitle(false);
+      else setIsTranslatingDesc(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Category *
-        </label>
-        <select
-          name="categoryId"
-          value={formData.categoryId}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-gold/50"
-        >
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id} className="bg-primary-dark">
-              {cat.name}
-            </option>
-          ))}
-        </select>
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Category *
+          </label>
+          <select
+            name="categoryId"
+            value={formData.categoryId}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-gold/50"
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id} className="bg-primary-dark">
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Volume Number *
+          </label>
+          <input
+            type="number"
+            name="volumeNumber"
+            value={formData.volumeNumber}
+            onChange={handleChange}
+            required
+            min="1"
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Title (English) *
+          </label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
+            placeholder="e.g., Genesis"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Title (Amharic)
+          </label>
+          <input
+            type="text"
+            name="titleAmharic"
+            value={formData.titleAmharic}
+            onChange={handleChange}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-amharic"
+            placeholder="ዘፍጥረት"
+          />
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Volume Number *
-        </label>
-        <input
-          type="number"
-          name="volumeNumber"
-          value={formData.volumeNumber}
-          onChange={handleChange}
-          required
-          min="1"
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Title *
+        <label className="flex items-center justify-between text-sm font-medium text-gray-300 mb-2">
+          <span>Title (Geez)</span>
+          <button
+            type="button"
+            onClick={() => handleTranslate("title")}
+            disabled={isTranslatingTitle || !formData.title}
+            className="flex items-center gap-1.5 px-2 py-1 text-[10px] bg-gold/10 text-gold border border-gold/30 rounded-md hover:bg-gold/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isTranslatingTitle ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            Auto-translate
+          </button>
         </label>
         <input
           type="text"
-          name="title"
-          value={formData.title}
+          name="titleGeez"
+          value={formData.titleGeez}
           onChange={handleChange}
-          required
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., Genesis"
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-geez"
+          placeholder="ዘፍጥረት"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Title (Amharic)
-        </label>
-        <input
-          type="text"
-          name="titleAmharic"
-          value={formData.titleAmharic}
-          onChange={handleChange}
-          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-          placeholder="e.g., ዘፍጥረት"
-        />
-      </div>
+      <div className="h-px bg-white/5 my-2" />
 
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Description
+          Description (English)
         </label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
-          rows={3}
+          rows={2}
           className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
           placeholder="Brief description of the volume"
         />
       </div>
 
-      <div className="flex items-center gap-3 pt-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Description (Amharic)
+        </label>
+        <textarea
+          name="descriptionAmharic"
+          value={formData.descriptionAmharic}
+          onChange={handleChange}
+          rows={2}
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-amharic"
+          placeholder="የቅጽ መግለጫ"
+        />
+      </div>
+
+      <div>
+        <label className="flex items-center justify-between text-sm font-medium text-gray-300 mb-2">
+          <span>Description (Geez)</span>
+          <button
+            type="button"
+            onClick={() => handleTranslate("description")}
+            disabled={isTranslatingDesc || !formData.description}
+            className="flex items-center gap-1.5 px-2 py-1 text-[10px] bg-gold/10 text-gold border border-gold/30 rounded-md hover:bg-gold/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {isTranslatingDesc ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            Auto-translate
+          </button>
+        </label>
+        <textarea
+          name="descriptionGeez"
+          value={formData.descriptionGeez}
+          onChange={handleChange}
+          rows={2}
+          className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-geez"
+          placeholder="መግለጫ ዘበልሳነ ግዕዝ"
+        />
+      </div>
+
+      <div className="flex items-center gap-3 pt-4 sticky bottom-0 bg-primary-dark/95 py-2">
         <button
           type="submit"
           className="flex-1 px-6 py-3 bg-gold text-primary-dark rounded-lg font-semibold hover:bg-gold/90 transition-colors"

@@ -9,7 +9,10 @@ import { z } from "zod";
 const createVolumeSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   titleAmharic: z.string().optional(),
+  titleGeez: z.string().optional(),
   description: z.string().optional(),
+  descriptionAmharic: z.string().optional(),
+  descriptionGeez: z.string().optional(),
   volumeNumber: z.number().int().positive("Volume number must be positive"),
   categoryId: z.string().min(1, "Category is required"),
 });
