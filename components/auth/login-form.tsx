@@ -30,11 +30,13 @@ export function LoginForm() {
       if (authError) {
         setError(authError.message || "Invalid credentials. Please try again.");
       } else {
-        // Redirect all staff (Admins and Teachers) to the teacher workspace by default
+        // Redirect based on role
         const userRole = (data?.user as any)?.role;
         let targetUrl = "/profile";
         
-        if (userRole === "admin" || userRole === "teacher") {
+        if (userRole === "admin") {
+          targetUrl = "/admin";
+        } else if (userRole === "teacher") {
           targetUrl = "/teacher";
         }
         
