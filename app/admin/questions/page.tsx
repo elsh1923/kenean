@@ -20,8 +20,21 @@ import {
   UserMinus,
 } from "lucide-react";
 import Link from "next/link";
+import React, { Suspense } from "react";
 
 export default function QuestionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-gold text-xl">Loading Questions...</div>
+      </div>
+    }>
+      <QuestionsPageContent />
+    </Suspense>
+  );
+}
+
+function QuestionsPageContent() {
   const searchParams = useSearchParams();
   const statusFilter = searchParams.get("status");
 

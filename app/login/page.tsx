@@ -1,7 +1,8 @@
 import { LoginForm } from "@/components/auth/login-form";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Loader2 } from "lucide-react";
+import React, { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -44,7 +45,9 @@ export default function LoginPage() {
 
         <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl overflow-hidden shadow-black/[0.05] dark:shadow-black/50">
           <div className="p-6 md:p-10">
-            <LoginForm />
+            <Suspense fallback={<div className="flex items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>}>
+              <LoginForm />
+            </Suspense>
           </div>
         </div>
 
