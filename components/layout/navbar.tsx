@@ -203,21 +203,20 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2 text-primary"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex md:hidden items-center gap-2">
+          <LanguageSwitcher />
+          <button
+            className="p-2 text-primary"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Navigation */}
       {isOpen && (
         <div className="md:hidden border-t bg-background p-4 flex flex-col gap-4 animate-in slide-in-from-top-5">
-          <div className="flex items-baseline justify-between px-2 mb-2">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Language</span>
-            <LanguageSwitcher />
-          </div>
           {session && (
             <div className="flex items-center gap-3 px-2 py-3 bg-secondary/30 rounded-xl mb-2">
               <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold border border-primary/20 overflow-hidden">

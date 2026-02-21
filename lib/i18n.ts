@@ -22,7 +22,7 @@ export const i18nDict = {
       signOut: "Sign Out",
     },
     home: {
-      heroTitle: "Sacred Knowledge for a Modern World",
+      heroTitle: "Discover timeless wisdom of Orthodox faith",
       heroSubtitle: "Explore the depths of Orthodox tradition through our structured video lessons and community wisdom.",
       startLearning: "Start Learning",
       viewQuestions: "View Q&A",
@@ -171,7 +171,7 @@ export const i18nDict = {
       signOut: "ውጣ",
     },
     home: {
-      heroTitle: "ቅዱስ እውቀት ለዘመናዊው ዓለም",
+      heroTitle: "የኦርቶዶክስ እምነት ዘላለማዊ ጥበብን ይወቁ",
       heroSubtitle: "በተቀነባበሩ የቪዲዮ ትምህርቶቻችን እና በማህበረሰብ ጥበብ የኦርቶዶክስን ወግ ጥልቀት ያስሱ።",
       startLearning: "መማር ይጀምሩ",
       viewQuestions: "ጥያቄና መልስ ይመልከቱ",
@@ -320,7 +320,7 @@ export const i18nDict = {
       signOut: "ጻእ",
     },
     home: {
-      heroTitle: "ቅዱስ አእምሮ ለዘመናዊ ዓለም",
+      heroTitle: "ርከብ ጥበብ ዘለዓለም ዘሃይማኖት ኦርቶዶክስ",
       heroSubtitle: "በተቀነባበሩ የቪዲዮ ትምህርቶቻችን እና በማህበረሰብ ጥበብ የኦርቶዶክስን ወግ ጥልቀት ያስሱ።",
       startLearning: "አንብብ",
       viewQuestions: "ተሰእሎ ወመላሽ ርኢ",
