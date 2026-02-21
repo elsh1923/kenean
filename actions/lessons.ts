@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
+import { deleteFile } from "@/lib/cloudinary";
 import { z } from "zod";
 
 // Validation schemas
@@ -371,6 +372,28 @@ export async function deleteLesson(id: string) {
       return { success: false, error: "Lesson not found" };
     }
 
+    // Clean up Cloudinary assets if they exist
+    const cleanupPromises = [];
+
+    if (lesson.thumbnailUrl && lesson.thumbnailUrl.includes("cloudinary.com")) {
+      const publicId = extractPublicId(lesson.thumbnailUrl);
+      if (publicId) {
+        cleanupPromises.push(deleteFile(publicId, "image"));
+      }
+    }
+
+    if (lesson.pdfUrl && lesson.pdfUrl.includes("cloudinary.com")) {
+      const publicId = extractPublicId(lesson.pdfUrl);
+      if (publicId) {
+        // PDF is raw/auto in lib/cloudinary but let's try raw as specified in uploadDocument
+        cleanupPromises.push(deleteFile(publicId, "raw"));
+      }
+    }
+
+    if (cleanupPromises.length > 0) {
+      await Promise.allSettled(cleanupPromises);
+    }
+
     await prisma.lesson.delete({
       where: { id },
     });
@@ -378,6 +401,7 @@ export async function deleteLesson(id: string) {
     revalidatePath("/");
     revalidatePath(`/volumes/${lesson.volumeId}`);
     revalidatePath("/admin/lessons");
+    revalidatePath("/admin");
 
     return { success: true };
   } catch (error) {
@@ -385,5 +409,28 @@ export async function deleteLesson(id: string) {
       return { success: false, error: error.message };
     }
     return { success: false, error: "Failed to delete lesson" };
+  }
+}
+
+/**
+ * Extracts Cloudinary public ID from URL
+ */
+function extractPublicId(url: string): string | null {
+  try {
+    // Expected format: .../upload/v12345/public-id.ext
+    const parts = url.split("/upload/");
+    if (parts.length < 2) return null;
+    
+    const afterUpload = parts[1];
+    // Remove version (v12345/)
+    const withoutVersion = afterUpload.replace(/^v\d+\//, "");
+    
+    // Remove extension
+    const lastDotIndex = withoutVersion.lastIndexOf(".");
+    if (lastDotIndex === -1) return withoutVersion;
+    
+    return withoutVersion.substring(0, lastDotIndex);
+  } catch (e) {
+    return null;
   }
 }

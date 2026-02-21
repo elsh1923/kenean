@@ -245,6 +245,7 @@ export async function getAdminStats() {
       pendingQuestions,
       claimedQuestions,
       answeredQuestions,
+      recentLessons,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { role: { in: ["admin", "teacher"] } } }),
@@ -256,6 +257,20 @@ export async function getAdminStats() {
       prisma.question.count({ where: { status: "PENDING" } }),
       prisma.question.count({ where: { status: "CLAIMED" } }),
       prisma.question.count({ where: { status: "ANSWERED" } }),
+      prisma.lesson.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          volume: {
+            select: {
+              title: true,
+              category: {
+                select: { name: true }
+              }
+            }
+          }
+        }
+      })
     ]);
 
     return {
@@ -270,6 +285,7 @@ export async function getAdminStats() {
           volumes: totalVolumes,
           lessons: totalLessons,
           publishedLessons,
+          recentLessons,
         },
         questions: {
           total: totalQuestions,

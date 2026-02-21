@@ -1,7 +1,8 @@
 import { getAdminStats } from "@/actions";
 import { StatCard } from "@/components/admin/StatCard";
 import Link from "next/link";
-import { Users, GraduationCap } from "lucide-react";
+import { Users, GraduationCap, Video, PlusCircle } from "lucide-react";
+import { RecentLessons } from "@/components/admin/RecentLessons";
 
 export default async function AdminDashboard() {
   const statsResult = await getAdminStats();
@@ -27,13 +28,22 @@ export default async function AdminDashboard() {
             Overview of your Orthodox Learning Hub administration
           </p>
         </div>
-        <Link
-          href="/teacher"
-          className="flex items-center gap-2 px-6 py-3 bg-gold/10 text-gold border border-gold/30 rounded-xl font-bold hover:bg-gold hover:text-primary-dark transition-all"
-        >
-          <GraduationCap className="w-5 h-5" />
-          Switch to Teacher Workspace
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/lessons"
+            className="flex items-center gap-2 px-6 py-3 bg-gold text-primary-dark rounded-xl font-bold hover:bg-gold/90 transition-all"
+          >
+            <PlusCircle className="w-5 h-5" />
+            New Upload
+          </Link>
+          <Link
+            href="/teacher"
+            className="flex items-center gap-2 px-6 py-3 bg-gold/10 text-gold border border-gold/30 rounded-xl font-bold hover:bg-gold hover:text-primary-dark transition-all"
+          >
+            <GraduationCap className="w-5 h-5" />
+            Teacher Mode
+          </Link>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -126,33 +136,49 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent Users / Promote to Teacher */}
-      <div className="mt-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-serif font-bold text-gold">
-            Promote to Teacher
-          </h2>
-          <Link href="/admin/users" className="text-sm font-medium text-gold hover:underline">
-            View all users
-          </Link>
-        </div>
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden">
-          <p className="p-6 text-gray-400 text-sm border-b border-white/10 italic">
-            Admins/Teachers have the responsibility of answering spiritual questions submitted by the community.
-          </p>
-          <div className="p-6">
-            <Link 
-              href="/admin/users?role=user" 
-              className="flex items-center justify-center p-8 border border-dashed border-white/20 rounded-lg hover:bg-white/5 transition-all text-gray-400 group"
-            >
-              <div className="text-center">
-                <div className="bg-gold/10 p-4 rounded-full inline-block mb-3 group-hover:bg-gold/20 transition-colors">
-                   <GraduationCap className="w-8 h-8 text-gold" />
-                </div>
-                 <p className="font-medium text-white">Find Users to Promote</p>
-                 <p className="text-sm">Manage user roles and assign teaching responsibilities</p>
-              </div>
+      {/* Recent Uploads and Promoting */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+        {/* Recent Uploads */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-serif font-bold text-gold">
+              Recent Uploads
+            </h2>
+            <Link href="/admin/lessons" className="text-sm font-medium text-gold hover:underline">
+              View all
             </Link>
+          </div>
+          <RecentLessons lessons={content.recentLessons || []} />
+        </div>
+
+        {/* Recent Users / Promote to Teacher */}
+        <div>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-serif font-bold text-gold">
+              Promote to Teacher
+            </h2>
+            <Link href="/admin/users" className="text-sm font-medium text-gold hover:underline">
+              View all users
+            </Link>
+          </div>
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden h-[calc(100%-3rem)]">
+            <p className="p-4 text-gray-400 text-xs border-b border-white/10 italic">
+              Admins/Teachers contribute by answering community questions.
+            </p>
+            <div className="p-6">
+              <Link 
+                href="/admin/users?role=user" 
+                className="flex items-center justify-center p-8 border border-dashed border-white/20 rounded-lg hover:bg-white/5 transition-all text-gray-400 group h-full"
+              >
+                <div className="text-center">
+                  <div className="bg-gold/10 p-4 rounded-full inline-block mb-3 group-hover:bg-gold/20 transition-colors">
+                     <GraduationCap className="w-8 h-8 text-gold" />
+                  </div>
+                   <p className="font-medium text-white">Find Users</p>
+                   <p className="text-xs">Manage roles and permissions</p>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
