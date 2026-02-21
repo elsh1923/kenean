@@ -49,6 +49,8 @@ export async function getAnsweredQuestions(options?: {
             select: {
               id: true,
               title: true,
+              titleAmharic: true,
+              titleGeez: true,
             },
           },
           answer: {
@@ -115,6 +117,8 @@ export async function getAllQuestions(options?: {
             select: {
               id: true,
               title: true,
+              titleAmharic: true,
+              titleGeez: true,
             },
           },
           claimedBy: {
@@ -189,6 +193,8 @@ export async function getQuestion(id: string) {
           select: {
             id: true,
             title: true,
+            titleAmharic: true,
+            titleGeez: true,
             volume: {
               select: {
                 id: true,
@@ -454,6 +460,8 @@ export async function getMyQuestions() {
           select: {
             id: true,
             title: true,
+            titleAmharic: true,
+            titleGeez: true,
           },
         },
         answer: {
