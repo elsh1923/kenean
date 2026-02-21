@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Admin Profile | Kenean",
+  title: "Admin Profile | Canaan",
   description: "Your admin profile",
 };
 
