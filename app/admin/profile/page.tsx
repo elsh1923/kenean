@@ -1,6 +1,7 @@
 import { getMyProfile, getAdminStats } from "@/actions";
 import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { ProfileClient } from "@/components/profile/ProfileClient";
 import {
   ShieldCheck,
@@ -50,10 +51,12 @@ export default async function AdminProfilePage() {
         <div className="flex-shrink-0">
           {user.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={user.image}
               alt={user.name || "Avatar"}
               className="w-24 h-24 rounded-full object-cover ring-4 ring-gold/40"
+              width={96}
+              height={96}
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-gold/20 border-2 border-gold/40 flex items-center justify-center text-gold text-3xl font-bold font-serif">
@@ -109,7 +112,7 @@ export default async function AdminProfilePage() {
 
       {/* Edit Form */}
       <div className="[&_.bg-card]:bg-white/10 [&_.border-border]:border-white/20 [&_.bg-background]:bg-white/5 [&_.text-primary]:text-gold [&_.bg-primary]:bg-gold [&_.text-primary-foreground]:text-black [&_.hover\\:bg-accent]:hover:bg-gold/80 [&_.text-foreground]:text-white [&_.text-muted-foreground]:text-gray-400 [&_.bg-secondary]:bg-white/5">
-        <ProfileClient initialName={user.name || ""} userEmail={user.email} />
+        <ProfileClient initialName={user.name || ""} userEmail={user.email} initialImage={user.image} />
       </div>
     </div>
   );

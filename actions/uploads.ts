@@ -20,7 +20,10 @@ const ALLOWED_DOCUMENT_TYPES = ["application/pdf"];
 /**
  * Upload a file to Cloudinary (authenticated users)
  */
-export async function uploadFile(formData: FormData) {
+export async function uploadFile(formData: FormData): Promise<
+  { success: true; data: import("@/lib/cloudinary").UploadResult } | 
+  { success: false; error: string }
+> {
   try {
     await requireAuth();
 

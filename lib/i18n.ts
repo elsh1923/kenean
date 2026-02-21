@@ -107,6 +107,10 @@ export const i18nDict = {
       editProfile: "Edit Profile",
       emailCannotChange: "Email cannot be changed",
       signOutConfirm: "Sign out of your account on this device.",
+      changePhoto: "Change Photo",
+      uploading: "Uploading...",
+      photoSuccess: "Photo updated successfully!",
+      removePhoto: "Remove Photo",
     },
     teacher: {
       dashboard: "Dashboard",
@@ -257,6 +261,10 @@ export const i18nDict = {
       editProfile: "መገለጫ አዘምን",
       emailCannotChange: "ኢሜል መቀየር አይቻልም",
       signOutConfirm: "ከዚህ መሣሪያ ላይ ከመለያዎ ይውጡ።",
+      changePhoto: "ፎቶ ቀይር",
+      uploading: "በመጫን ላይ...",
+      photoSuccess: "ፎቶ በተሳካ ሁኔታ ተቀይሯል!",
+      removePhoto: "ፎቶ አስወግድ",
     },
     teacher: {
       dashboard: "ዳሽቦርድ",
@@ -407,6 +415,10 @@ export const i18nDict = {
       editProfile: "አሐድ መዝገበ ገጽ",
       emailCannotChange: "ኢሜል አይደለወም",
       signOutConfirm: "እምዝንቱ መሳርያ ጻእ እም መለያከ።",
+      changePhoto: "ገጽየ ደልው",
+      uploading: "በመጫን ላይ...",
+      photoSuccess: "ገጽየ ተደለወ!",
+      removePhoto: "ገጽየ አስወግድ",
     },
     teacher: {
       dashboard: "አደባባይ",

@@ -349,10 +349,11 @@ export async function getMyProfile() {
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
+  image: z.string().url().optional().nullable(),
 });
 
 // Update current user's profile (any authenticated user)
-export async function updateMyProfile(input: { name: string }) {
+export async function updateMyProfile(input: { name: string; image?: string | null }) {
   try {
     const { getSession } = await import("@/lib/auth-utils");
     const session = await getSession();
@@ -365,7 +366,10 @@ export async function updateMyProfile(input: { name: string }) {
 
     const user = await prisma.user.update({
       where: { id: session.user.id },
-      data: { name: validated.name },
+      data: { 
+        name: validated.name,
+        image: validated.image,
+      },
       select: {
         id: true,
         email: true,

@@ -43,73 +43,6 @@ export default async function ProfilePage() {
           <p className="text-muted-foreground font-sans">{(dict as any).profile.subtitle}</p>
         </div>
 
-        {/* Avatar Card */}
-        <div className="bg-card border border-border rounded-2xl p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
-          {/* Avatar */}
-          <div className="flex-shrink-0">
-            {user.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.image}
-                alt={user.name || "Avatar"}
-                className="w-24 h-24 rounded-full object-cover ring-4 ring-accent/30"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-3xl font-bold ring-4 ring-accent/30">
-                {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          {/* User Info */}
-          <div className="flex-1 text-center sm:text-left space-y-3">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">
-                {user.name || (dict as any).profile.unnamedUser}
-              </h2>
-              <div className="flex items-center justify-center sm:justify-start gap-2 mt-1">
-                <span
-                  className={`inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider font-sans ${
-                    user.role === "admin"
-                      ? "bg-accent/20 text-accent border border-accent/40"
-                      : "bg-secondary text-primary border border-border"
-                  }`}
-                >
-                  {user.role === "admin" ? (
-                    <ShieldCheck className="w-3 h-3" />
-                  ) : (
-                    <User className="w-3 h-3" />
-                  )}
-                  {user.role}
-                </span>
-                {user.emailVerified && (
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/30 font-sans">
-                    <CheckCircle2 className="w-3 h-3" />
-                    {(dict as any).profile.verified}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-1 text-sm text-muted-foreground font-sans">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
-                <Mail className="w-4 h-4" />
-                <span>{user.email}</span>
-              </div>
-              <div className="flex items-center justify-center sm:justify-start gap-2">
-                <Calendar className="w-4 h-4" />
-                <span className="font-serif">
-                  {(dict as any).profile.memberSince}{" "}
-                  {new Date(user.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
@@ -130,7 +63,11 @@ export default async function ProfilePage() {
         </div>
 
         {/* Editable form (Client Component) */}
-        <ProfileClient initialName={user.name || ""} userEmail={user.email} />
+        <ProfileClient 
+          initialName={user.name || ""} 
+          userEmail={user.email} 
+          initialImage={user.image}
+        />
       </div>
     </div>
   );
