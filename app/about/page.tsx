@@ -74,7 +74,7 @@ export default async function AboutPage() {
             <div className="space-y-8">
               <div className="inline-block px-3 py-1 border border-accent/30 rounded-full bg-accent/10">
                 <span className="text-accent font-medium text-sm tracking-widest uppercase">
-                  {lang === "en" ? "The Meaning of Kenean" : lang === "am" ? "የቀንአን ትርጉም" : "ትርጓሜ ቀንአን"}
+                  {lang === "en" ? "The Meaning of Canaan" : lang === "am" ? "የከነዓን ትርጉም" : "ትርጓሜ ከነዓን"}
                 </span>
               </div>
               <h2 className="font-serif text-4xl font-bold text-primary">
@@ -82,17 +82,17 @@ export default async function AboutPage() {
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed font-serif">
                 {lang === "en" 
-                  ? "Kenean is more than just a learning platform—it is a digital bridge to the timeless wisdom of the Orthodox Christian tradition. Born from a desire to make sacred knowledge accessible to all, we provide a structured environment where the faithful can explore the depths of their heritage."
+                  ? "Canaan is more than just a learning platform—it is a digital bridge to the timeless wisdom of the Orthodox Christian tradition. Born from a desire to make sacred knowledge accessible to all, we provide a structured environment where the faithful can explore the depths of their heritage."
                   : lang === "am"
-                  ? "ቀንአን ከመማሪያ መድረክ በላይ ነው - ወደ ዘላለማዊው የኦርቶዶክስ ክርስቲያን ወግ ጥበብ ዲጂታል ድልድይ ነው። ቅዱስ እውቀትን ለሁሉም ተደራሽ ለማድረግ ካለን ፍላጎት የተነሳ፣ አማኞች የውርሳቸውን ጥልቀት የሚመረምሩበት የተዋቀረ አካባቢ እናቀርባለን።"
-                  : "ቀንአን ውእቱ መርበብ ዘጥበብ።"
+                  ? "ከነዓን ከመማሪያ መድረክ በላይ ነው - ወደ ዘላለማዊው የኦርቶዶክስ ክርስቲያን ወግ ጥበብ ዲጂታል ድልድይ ነው። ቅዱስ እውቀትን ለሁሉም ተደራሽ ለማድረግ ካለን ፍላጎት የተነሳ፣ አማኞች የውርሳቸውን ጥልቀት የሚመረምሩበት የተዋቀረ አካባቢ እናቀርባለን።"
+                  : "ከነዓን ውእቱ መርበብ ዘጥበብ።"
                 }
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed font-serif">
                 {lang === "en"
-                  ? "Whether you are a lifelong believer seeking deeper theological understanding or a curious soul exploring the faith for the first time, Kenean offers the tools and community support to guide your journey."
+                  ? "Whether you are a lifelong believer seeking deeper theological understanding or a curious soul exploring the faith for the first time, Canaan offers the tools and community support to guide your journey."
                   : lang === "am"
-                  ? "ጥልቅ ሥነ-መለኮታዊ ግንዛቤን የምትፈልግ የሕይወት ዘመን አማኝ ብትሆን ወይም እምነቱን ለመጀመሪያ ጊዜ የምትመረምር የማወቅ ጉጉት ያለህ ሰው፣ ቀንአን ጉዞህን ለመምራት መሣሪያዎችን እና የማህበረሰባውን ድጋፍ ይሰጣል።"
+                  ? "ጥልቅ ሥነ-መለኮታዊ ግንዛቤን የምትፈልግ የሕይወት ዘመን አማኝ ብትሆን ወይም እምነቱን ለመጀመሪያ ጊዜ የምትመረምር የማወቅ ጉጉት ያለህ ሰው፣ ከነዓን ጉዞህን ለመምራት መሣሪያዎችን እና የማህበረሰባውን ድጋፍ ይሰጣል።"
                   : "መርሐ ጽድቅ ወጥበብ።"
                 }
               </p>
@@ -170,7 +170,7 @@ export default async function AboutPage() {
               }
             </p>
             <div className="pt-6">
-               <p className="text-primary font-bold uppercase tracking-widest text-sm">— {lang === "en" ? "The Kenean Team" : lang === "am" ? "የቀንአን ቡድን" : "Team Kenean"}</p>
+               <p className="text-primary font-bold uppercase tracking-widest text-sm">— {lang === "en" ? "The Canaan Team" : lang === "am" ? "የከነዓን ቡድን" : "Team Canaan"}</p>
             </div>
           </div>
         </div>

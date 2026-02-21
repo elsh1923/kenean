@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Kenean - Orthodox Christian Learning Hub",
+  title: "Canaan - Orthodox Christian Learning Hub",
   description: "A space for Orthodox Christian learning, questions, and answers.",
 };
 

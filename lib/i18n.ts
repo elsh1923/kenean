@@ -68,6 +68,7 @@ export const i18nDict = {
       reviewNote: "Note: Questions are reviewed and answered by teachers. Only answered questions are made public.",
     },
     common: {
+      siteName: "Canaan",
       loading: "Loading...",
       error: "An error occurred",
       save: "Save",
@@ -217,6 +218,7 @@ export const i18nDict = {
       reviewNote: "ማሳሰቢያ: ጥያቄዎች በመምህራን ተገምግመው መልስ ይሰጥባቸዋል። ምላሽ ያገኙ ጥያቄዎች ብቻ ለሕዝብ ይፋ ይሆናሉ።",
     },
     common: {
+      siteName: "ከነዓን",
       loading: "በመጫን ላይ...",
       error: "ስህተት ተከስቷል",
       save: "አስቀምጥ",
@@ -366,6 +368,7 @@ export const i18nDict = {
       reviewNote: "ማሳሰቢያ: ተሰእሎት ይትመርመር ወይትመላእ እም አበው። መላሽ ዘረከበ ተሰእሎት ብቻ ይትዐተም በዝንቱ መርበብ።",
     },
     common: {
+      siteName: "ከነዓን",
       loading: "በመጫን ላይ...",
       error: "ጌጋ ተረክበ",
       save: "አስቀምጥ",

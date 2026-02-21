@@ -7,7 +7,7 @@ import { getLesson } from "@/actions";
 import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 
 export const metadata = {
-  title: "Ask a Question | Kenean",
+  title: "Ask a Question | Canaan",
   description: "Submit a spiritual question to our teachers.",
 };
 

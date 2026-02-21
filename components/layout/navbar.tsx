@@ -80,7 +80,7 @@ export function Navbar() {
             <BookOpen className="h-6 w-6" />
           </div>
           <span className="font-serif text-xl font-bold tracking-tight text-primary">
-            Kenean
+            {(dict as any).common.siteName}
           </span>
         </Link>
 

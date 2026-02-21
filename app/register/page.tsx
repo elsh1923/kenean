@@ -35,7 +35,7 @@ export default async function RegisterPage() {
             <div className="p-2.5 bg-primary text-primary-foreground rounded-lg group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300 shadow-lg shadow-primary/20 dark:shadow-none">
               <BookOpen className="w-6 h-6" />
             </div>
-            <span className="font-serif text-2xl font-bold text-primary tracking-tight transition-colors">Kenean</span>
+            <span className="font-serif text-2xl font-bold text-primary tracking-tight transition-colors">{(dict as any).common.siteName}</span>
           </Link>
           
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">

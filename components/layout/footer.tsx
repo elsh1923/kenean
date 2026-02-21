@@ -18,7 +18,7 @@ export function Footer() {
                 <BookOpen className="h-5 w-5" />
               </div>
               <span className="font-serif text-lg font-bold text-primary">
-                Kenean
+                {(dict as any).common.siteName}
               </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -55,14 +55,14 @@ export function Footer() {
             <p className="text-sm text-muted-foreground mb-2">
               {(dict as any).footer.contactQuery}
             </p>
-            <a href="mailto:contact@kenean.com" className="text-sm font-medium text-primary hover:text-accent transition-colors">
-              contact@kenean.com
+            <a href="mailto:contact@canaan.com" className="text-sm font-medium text-primary hover:text-accent transition-colors">
+              contact@canaan.com
             </a>
           </div>
         </div>
  
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Kenean Orthodox Learning Hub. {(dict as any).footer.rightsReserved}</p>
+          <p>&copy; {new Date().getFullYear()} {(dict as any).common.siteName} Orthodox Learning Hub. {(dict as any).footer.rightsReserved}</p>
         </div>
       </div>
     </footer>

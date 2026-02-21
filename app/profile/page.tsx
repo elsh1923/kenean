@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "My Profile | Kenean",
+  title: "My Profile | Canaan",
   description: "View and update your profile",
 };
 
