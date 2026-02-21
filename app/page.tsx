@@ -3,30 +3,47 @@ import { getPublishedLessons } from "@/actions/lessons";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, BookOpen, MessageCircleQuestion, PlayCircle } from "lucide-react";
-import { Category } from "@prisma/client";
+import { Category, Lesson, Volume } from "@prisma/client";
 import { getServerDict, getServerLanguage } from "@/lib/i18n-server";
 
+// Define more precise types for included data
 interface CategoryWithCount extends Category {
   _count?: {
     volumes: number;
-    lessons?: number;
   };
-  nameGeez?: string | null;
-  nameAmharic?: string | null;
-  descriptionAmharic?: string | null;
-  descriptionGeez?: string | null;
+}
+
+interface LessonWithRelations extends Lesson {
+  volume?: (Volume & {
+    category?: Category | null;
+  }) | null;
 }
 
 export default async function Home() {
-  const [categoriesData, latestLessonsData, dict, lang] = await Promise.all([
+  // Fetch data with error handling
+  const responses = await Promise.allSettled([
     getCategories(),
     getPublishedLessons({ limit: 4 }),
     getServerDict(),
     getServerLanguage(),
   ]);
 
+  const categoriesData = responses[0].status === "fulfilled" ? responses[0].value : { success: false, data: [] };
+  const latestLessonsData = responses[1].status === "fulfilled" ? responses[1].value : { success: false, data: [] };
+  const dict = responses[2].status === "fulfilled" ? responses[2].value : null;
+  const lang = responses[3].status === "fulfilled" ? responses[3].value : "en";
+
+  // Graceful fallback for dict
+  if (!dict) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Failed to load translations. Please refresh the page.</p>
+      </div>
+    );
+  }
+
   const categories = (categoriesData.success ? categoriesData.data : []) as CategoryWithCount[];
-  const latestLessons = latestLessonsData.success ? latestLessonsData.data : [];
+  const latestLessons = (latestLessonsData.success ? latestLessonsData.data : []) as LessonWithRelations[];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -54,12 +71,16 @@ export default async function Home() {
           </div>
           
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            {dict.home.heroTitle.split("for").map((part, i) => (
-              <span key={i}>
-                {i === 0 ? part : <><span className="text-accent">for</span>{part}</>}
-                {i === 0 && <br />}
-              </span>
-            ))}
+            {lang === "en" && dict.home.heroTitle.includes("for") ? (
+              dict.home.heroTitle.split("for").map((part, i) => (
+                <span key={i}>
+                  {i === 0 ? part : <><span className="text-accent">for</span>{part}</>}
+                  {i === 0 && <br />}
+                </span>
+              ))
+            ) : (
+              dict.home.heroTitle
+            )}
           </h1>
           
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
@@ -97,7 +118,7 @@ export default async function Home() {
 
           {categories && categories.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((category: CategoryWithCount) => {
+              {categories.map((category) => {
                 const displayName = lang === "am" && category.nameAmharic ? category.nameAmharic : 
                                   lang === "gz" && category.nameGeez ? category.nameGeez : 
                                   category.name;
@@ -165,9 +186,17 @@ export default async function Home() {
           {latestLessons && latestLessons.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {latestLessons.map((lesson) => {
-                const displayTitle = lang === "am" && (lesson as any).titleAmharic ? (lesson as any).titleAmharic : 
-                                   lang === "gz" && (lesson as any).titleGeez ? (lesson as any).titleGeez : 
+                const displayTitle = lang === "am" && lesson.titleAmharic ? lesson.titleAmharic : 
+                                   lang === "gz" && lesson.titleGeez ? lesson.titleGeez : 
                                    lesson.title;
+                
+                const category = lesson.volume?.category;
+                const categoryName = category ? (
+                  lang === "am" && category.nameAmharic ? category.nameAmharic :
+                  lang === "gz" && category.nameGeez ? category.nameGeez :
+                  category.name
+                ) : null;
+
                 return (
                   <Link
                     key={lesson.id}
@@ -194,14 +223,14 @@ export default async function Home() {
                     </div>
                     <div className="p-4 flex flex-col flex-1">
                       <div className="text-xs font-medium text-accent mb-2 uppercase tracking-wide">
-                        {(lesson.volume?.category as any)?.[lang === "am" ? "nameAmharic" : lang === "gz" ? "nameGeez" : "name"] || lesson.volume?.category?.name}
+                        {categoryName || (lang === "en" ? "General" : lang === "am" ? "አጠቃላይ" : "ኵላዊ")}
                       </div>
                       <h3 className="font-serif font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {displayTitle}
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-auto pt-2 flex items-center gap-2">
-                        <span>{new Date(lesson.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET")}</span>
-                      </p>
+                      <div className="text-xs text-muted-foreground mt-auto pt-2">
+                        {new Date(lesson.createdAt).toLocaleDateString(lang === "en" ? "en-US" : "am-ET")}
+                      </div>
                     </div>
                   </Link>
                 );
