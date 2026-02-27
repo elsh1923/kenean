@@ -9,6 +9,7 @@ import {
   updateLesson,
   deleteLesson,
   toggleLessonPublished,
+  uploadFile,
   CreateLessonInput,
   UpdateLessonInput,
 } from "@/actions";
@@ -374,11 +375,43 @@ function LessonForm({
 
   const [isTranslatingTitle, setIsTranslatingTitle] = useState(false);
   const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const formUploadData = new FormData();
+      formUploadData.append("file", file);
+      formUploadData.append("type", "document");
+      formUploadData.append("folder", "orthodox-learning-hub/documents");
+
+      const result = await uploadFile(formUploadData);
+      if (result.success && result.data && 'url' in result.data) {
+        setFormData(prev => ({ ...prev, pdfUrl: result.data.url as string }));
+      } else {
+        alert(result.error || "Upload failed");
+      }
+    } catch (err) {
+      alert("An error occurred during upload");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
+    
+    // Explicitly handle select element type changes to ensure state updates
+    if (name === "type") {
+      setFormData((prev) => ({ ...prev, type: value as "VIDEO" | "BOOK" }));
+      return;
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]:
@@ -550,16 +583,31 @@ function LessonForm({
       ) : (
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            PDF / Document URL
+            PDF / Document
           </label>
-          <input
-            type="url"
-            name="pdfUrl"
-            value={formData.pdfUrl}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-            placeholder="https://..."
-          />
+          <div className="flex gap-4 items-center mb-2">
+            <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-medium text-sm border border-white/20">
+               {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
+               <input
+                 type="file"
+                 accept="application/pdf"
+                 className="hidden"
+                 onChange={handleFileUpload}
+                 disabled={isUploading}
+               />
+            </label>
+            {formData.pdfUrl && (
+              <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle className="w-4 h-4"/> PDF Ready</span>
+            )}
+          </div>
+          {formData.pdfUrl && (
+            <input
+              type="url"
+              readOnly
+              value={formData.pdfUrl}
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 text-sm focus:outline-none focus:border-gold/50 cursor-not-allowed"
+            />
+          )}
         </div>
       )}
 
