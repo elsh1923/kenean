@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, User, Calendar, MessageSquare, ShieldCheck, Share2, CornerDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSession } from "@/lib/auth-utils";
+import { AnswerComments } from "@/components/questions/AnswerComments";
 
 export default async function QuestionDetailPage({
   params,
@@ -11,10 +13,11 @@ export default async function QuestionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [result, lang, dict] = await Promise.all([
+  const [result, lang, dict, session] = await Promise.all([
     getQuestion(id),
     getServerLanguage(),
     getServerDict(),
+    getSession(),
   ]);
 
   if (!result.success || !result.data) {
@@ -135,6 +138,12 @@ export default async function QuestionDetailPage({
                     </div>
                   </div>
                 )}
+              
+                <AnswerComments 
+                  answerId={question.answer.id}
+                  comments={question.answer.comments || []}
+                  currentUser={session?.user || null}
+                />
               </div>
             ) : (
               <div className="bg-secondary/20 border border-dashed border-border rounded-3xl p-12 text-center">

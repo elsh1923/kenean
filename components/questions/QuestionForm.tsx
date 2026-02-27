@@ -18,6 +18,8 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState(1);
+  const [language, setLanguage] = useState<string>("en");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +30,7 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
       const result = await submitQuestion({
         content,
         lessonId,
+        language,
       });
 
       if (result.success) {
@@ -63,22 +66,69 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
     );
   }
 
+  if (step === 1) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center">
+            <MessageSquare className="w-6 h-6 text-accent" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-serif font-bold text-white">{(dict as any).qa.askQuestion}</h2>
+            <p className="text-sm text-muted-foreground">Select your preferred language for this question</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[
+            { id: "en", name: "English", icon: "🇺🇸", desc: "Submit in English" },
+            { id: "am", name: "አማርኛ", icon: "🇪🇹", desc: "በአማርኛ ጠይቁ" },
+            { id: "gz", name: "ግዕዝ", icon: "🇪🇹", desc: "በግዕዝ ጠይቁ" },
+          ].map((lang) => (
+            <button
+              key={lang.id}
+              onClick={() => {
+                setLanguage(lang.id);
+                setStep(2);
+              }}
+              className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-white/10 bg-secondary/20 hover:bg-accent/20 hover:border-accent/50 transition-all group"
+            >
+              <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{lang.icon}</span>
+              <div className="text-center">
+                <span className="block font-bold text-lg text-white group-hover:text-accent transition-colors">{lang.name}</span>
+                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">{lang.desc}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <p className="text-xs text-center text-muted-foreground">
+          You can change the language selection afterwards if needed.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-card border border-border rounded-2xl p-8 shadow-xl">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center">
-          <MessageSquare className="w-6 h-6 text-accent" />
+    <div className="bg-card border border-border rounded-2xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center">
+            <MessageSquare className="w-6 h-6 text-accent" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-serif font-bold text-white">{(dict as any).qa.askQuestion}</h2>
+            <p className="text-sm text-muted-foreground">
+              {language === "am" ? "በአማርኛ እየጠየቁ ነው" : language === "gz" ? "በግዕዝ እየጠየቁ ነው" : "You are asking in English"}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-serif font-bold text-white">{(dict as any).qa.askQuestion}</h2>
-          <p className="text-sm text-muted-foreground">
-            {lessonTitle ? (
-              <>{(dict as any).qa.regarding}: <span className="text-primary font-medium">{lessonTitle}</span></>
-            ) : (
-              (dict as any).qa.seekGuidance
-            )}
-          </p>
-        </div>
+        <button 
+          onClick={() => setStep(1)}
+          className="text-xs font-bold uppercase tracking-widest text-accent hover:text-white transition-colors underline underline-offset-4"
+        >
+          Change Language
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -91,15 +141,15 @@ export function QuestionForm({ lessonId, lessonTitle }: QuestionFormProps) {
 
         <div className="space-y-2">
           <label htmlFor="content" className="block text-sm font-medium text-gray-300">
-            {(dict as any).qa.yourQuestion} *
+            {(dict as any).qa.yourQuestion} ({language === "am" ? "አማርኛ" : language === "gz" ? "ግዕዝ" : "English"}) *
           </label>
           <textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
-            placeholder="..."
-            className="w-full h-40 bg-secondary/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none font-serif"
+            placeholder={language === "am" ? "ጥያቄዎን እዚህ ይጻፉ..." : language === "gz" ? "ተሰእሎትከ በዝ ጸሐፍ..." : "Type your question here..."}
+            className="w-full h-40 bg-secondary/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none font-serif text-lg"
             minLength={10}
             maxLength={2000}
           />

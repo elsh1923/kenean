@@ -10,6 +10,7 @@ import { QuestionStatus } from "@prisma/client";
 const submitQuestionSchema = z.object({
   content: z.string().min(10, "Question must be at least 10 characters").max(2000),
   lessonId: z.string().optional(),
+  language: z.string().default("en"),
 });
 
 // Types
@@ -224,6 +225,20 @@ export async function getQuestion(id: string) {
                 image: true,
               },
             },
+            comments: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  }
+                }
+              },
+              orderBy: {
+                createdAt: 'asc'
+              }
+            }
           },
         },
       },
@@ -272,6 +287,7 @@ export async function submitQuestion(input: SubmitQuestionInput) {
         content: validated.content,
         lessonId: validated.lessonId,
         userId: session.user.id,
+        language: validated.language,
         status: QuestionStatus.PENDING,
       },
     });
