@@ -19,7 +19,7 @@ const lessonBaseSchema = z.object({
   pdfUrl: z.string().url("Invalid PDF URL").optional().or(z.literal("")),
   content: z.string().optional(),
   contentImages: z.array(z.string().url()).optional(),
-  thumbnailUrl: z.string().url().optional(),
+  thumbnailUrl: z.string().url().optional().or(z.literal("")),
   lessonNumber: z.number().int().positive("Lesson number must be positive"),
   duration: z.number().int().min(0).optional(),
   volumeId: z.string().min(1, "Volume is required"),
@@ -239,6 +239,7 @@ export async function createLesson(input: CreateLessonInput) {
 
     revalidatePath("/");
     revalidatePath(`/volumes/${validated.volumeId}`);
+    revalidatePath("/lessons");
     revalidatePath("/admin/lessons");
 
     return { success: true, data: lesson };
@@ -311,6 +312,7 @@ export async function updateLesson(id: string, input: UpdateLessonInput) {
 
     revalidatePath("/");
     revalidatePath(`/volumes/${lesson.volumeId}`);
+    revalidatePath("/lessons");
     revalidatePath(`/lessons/${id}`);
     revalidatePath("/admin/lessons");
 
@@ -416,6 +418,7 @@ export async function deleteLesson(id: string) {
 
     revalidatePath("/");
     revalidatePath(`/volumes/${lesson.volumeId}`);
+    revalidatePath("/lessons");
     revalidatePath("/admin/lessons");
     revalidatePath("/admin");
 

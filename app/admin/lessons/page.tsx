@@ -15,7 +15,7 @@ import {
   UpdateLessonInput,
 } from "@/actions";
 import { FormModal } from "@/components/admin/FormModal";
-import { Edit, Trash2, Plus, Video, Book, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Edit, Trash2, Plus, Video, Book, Eye, EyeOff, CheckCircle, ImagePlus, Loader2, Sparkles, X, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default function LessonsPage() {
@@ -370,6 +370,7 @@ function LessonForm({
     pdfUrl: lesson?.pdfUrl || "",
     content: lesson?.content || "",
     contentImages: lesson?.contentImages || [],
+    thumbnailUrl: lesson?.thumbnailUrl || "",
     lessonNumber: lesson?.lessonNumber || 1,
     duration: lesson?.duration || 0,
     volumeId: lesson?.volumeId || volumeId,
@@ -380,28 +381,32 @@ function LessonForm({
   const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "pdfUrl" | "thumbnailUrl") => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    setIsUploading(true);
+    if (field === "pdfUrl") setIsUploading(true);
+    else setIsUploadingThumbnail(true);
+
     try {
       const formUploadData = new FormData();
       formUploadData.append("file", file);
-      formUploadData.append("type", "document");
-      formUploadData.append("folder", "orthodox-learning-hub/documents");
+      formUploadData.append("type", field === "pdfUrl" ? "document" : "image");
+      formUploadData.append("folder", field === "pdfUrl" ? "orthodox-learning-hub/documents" : "orthodox-learning-hub/lessons");
 
       const result = await uploadFile(formUploadData);
       if (result.success && result.data && 'url' in result.data) {
-        setFormData(prev => ({ ...prev, pdfUrl: result.data.url as string }));
+        setFormData(prev => ({ ...prev, [field]: result.data.url as string }));
       } else {
         alert(result.error || "Upload failed");
       }
     } catch (err) {
       alert("An error occurred during upload");
     } finally {
-      setIsUploading(false);
+      if (field === "pdfUrl") setIsUploading(false);
+      else setIsUploadingThumbnail(false);
     }
   };
 
@@ -622,6 +627,40 @@ function LessonForm({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
+              Thumbnail (Cover Image)
+            </label>
+            <div className="flex gap-4 items-center mb-2">
+              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-medium text-sm border border-white/20">
+                 {isUploadingThumbnail ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
+                 {formData.thumbnailUrl ? "Change Thumbnail" : "Upload Thumbnail"}
+                 <input
+                   type="file"
+                   accept="image/*"
+                   className="hidden"
+                   onChange={(e) => handleFileUpload(e, "thumbnailUrl")}
+                   disabled={isUploadingThumbnail}
+                 />
+              </label>
+              {formData.thumbnailUrl && (
+                <div className="relative w-16 h-10 rounded border border-white/10 overflow-hidden">
+                  <img src={formData.thumbnailUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <button 
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, thumbnailUrl: "" }))}
+                    className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl hover:bg-red-600"
+                  >
+                    <X className="w-2 h-2" />
+                  </button>
+                </div>
+              )}
+            </div>
+            {formData.type === "VIDEO" && !formData.thumbnailUrl && (
+              <p className="text-[10px] text-gray-500">Auto-generation from YouTube is enabled if left blank.</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               PDF / Document
             </label>
             <div className="flex gap-4 items-center mb-2">
@@ -631,7 +670,7 @@ function LessonForm({
                    type="file"
                    accept="application/pdf"
                    className="hidden"
-                   onChange={handleFileUpload}
+                   onChange={(e) => handleFileUpload(e, "pdfUrl")}
                    disabled={isUploading}
                  />
               </label>
