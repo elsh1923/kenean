@@ -89,3 +89,10 @@ export {
   updateMyProfile,
 } from "./users";
 
+// Progress
+export {
+  getUserProgress,
+  markLessonCompleted,
+  getLessonProgress,
+} from "./progress";
+

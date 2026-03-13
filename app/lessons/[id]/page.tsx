@@ -3,6 +3,8 @@ import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 import { ArrowLeft, Calendar, FileText, Share2, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MarkCompletedButton } from "@/components/lessons/MarkCompletedButton";
+import { getLessonProgress } from "@/actions";
 
 function extractYouTubeId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -16,10 +18,11 @@ export default async function LessonDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [result, lang, dict] = await Promise.all([
+  const [result, lang, dict, progressResult] = await Promise.all([
     getLesson(id),
     getServerLanguage(),
     getServerDict(),
+    getLessonProgress(id),
   ]);
 
   if (!result.success || !result.data) {
@@ -28,6 +31,7 @@ export default async function LessonDetailPage({
 
   const lesson = result.data;
   const videoId = lesson.youtubeUrl ? extractYouTubeId(lesson.youtubeUrl) : null;
+  const initialCompleted = progressResult?.success ? progressResult.data : false;
 
   // Localized fields
   const title = lang === "am" ? (lesson.titleAmharic || lesson.title) : lang === "gz" ? (lesson.titleGeez || lesson.title) : lesson.title;
@@ -106,6 +110,13 @@ export default async function LessonDetailPage({
                     })}
                   </span>
                 </div>
+                
+                <MarkCompletedButton 
+                  lessonId={lesson.id} 
+                  initialCompleted={initialCompleted as boolean} 
+                  lang={lang} 
+                />
+
                 {lesson.type === "BOOK" && lesson.pdfUrl && (
                   <a 
                     href={lesson.pdfUrl} 

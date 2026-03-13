@@ -2,6 +2,7 @@ import { getLesson, getMyProfile } from "@/actions";
 import { getServerLanguage, getServerDict } from "@/lib/i18n-server";
 import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { ProfileClient } from "@/components/profile/ProfileClient";
 import {
   User,
@@ -61,6 +62,13 @@ export default async function ProfilePage() {
             <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.answersGiven}</div>
           </div>
         </div>
+
+        {/* Link to Progress Dashboard */}
+        <Link href="/dashboard" className="block w-full bg-accent/10 border border-accent/20 rounded-xl p-4 text-center hover:bg-accent/20 transition-colors">
+          <span className="font-bold text-accent flex items-center justify-center gap-2">
+            View Student Progress Dashboard
+          </span>
+        </Link>
 
         {/* Editable form (Client Component) */}
         <ProfileClient 
