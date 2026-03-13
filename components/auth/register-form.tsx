@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Loader2, Mail, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, Check, Circle } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/components/providers/LanguageContext";
 
@@ -14,6 +15,7 @@ export function RegisterForm() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,18 +101,42 @@ export function RegisterForm() {
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent transition-colors duration-300" />
           <input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             required
-            minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full pl-10 pr-4 py-3.5 bg-background/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all duration-300"
+            className="w-full pl-10 pr-12 py-3.5 bg-background/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all duration-300"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors p-1"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
         </div>
-        <p className="text-[10px] text-muted-foreground/60 ml-1 italic font-medium">
-          {lang === "en" ? "Must be at least 8 characters" : lang === "am" ? "ቢያንስ 8 ቁምፊዎች መሆን አለበት" : "ቢያንስ 8 ቁምፊዎች መሆን አለበት"}
-        </p>
+        
+        <div className="flex flex-wrap gap-x-4 gap-y-1 px-1 mt-2">
+          <div className={cn(
+            "flex items-center gap-1.5 transition-colors duration-300",
+            password.length >= 8 ? "text-green-500" : "text-muted-foreground/40"
+          )}>
+            {password.length >= 8 ? <Check className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
+            <span className="text-[10px] font-medium uppercase tracking-wider">
+              {lang === "en" ? "8+ Characters" : "8+ ቁምፊዎች"}
+            </span>
+          </div>
+          <div className={cn(
+            "flex items-center gap-1.5 transition-colors duration-300",
+            /\d/.test(password) ? "text-green-500" : "text-muted-foreground/40"
+          )}>
+            {/\d/.test(password) ? <Check className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
+            <span className="text-[10px] font-medium uppercase tracking-wider">
+              {lang === "en" ? "Contains Number" : "ቁጥር አለበት"}
+            </span>
+          </div>
+        </div>
       </div>
 
       <button

@@ -345,7 +345,7 @@ export default function LessonsPage() {
   );
 }
 
-import { Sparkles, Loader2 } from "lucide-react";
+
 
 function LessonForm({
   lesson,

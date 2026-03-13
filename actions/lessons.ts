@@ -352,6 +352,7 @@ export async function toggleLessonPublished(id: string) {
 
     revalidatePath("/");
     revalidatePath(`/volumes/${lesson.volumeId}`);
+    revalidatePath("/lessons");
     revalidatePath(`/lessons/${id}`);
     revalidatePath("/admin/lessons");
 
