@@ -119,22 +119,76 @@ export default async function QuestionDetailPage({
                   </p>
                 </div>
 
+                {/* Attachments & Links */}
                 {question.answer.attachments && question.answer.attachments.length > 0 && (
                   <div className="mt-12 pt-8 border-t border-border">
-                    <h4 className="text-sm font-bold text-foreground mb-4 font-sans">{(dict as any).qa.supportingMaterials}</h4>
-                    <div className="flex flex-wrap gap-4 font-sans">
-                      {question.answer.attachments.map((url: string, idx: number) => (
-                        <a 
-                          key={idx} 
-                          href={url} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="px-4 py-2 bg-secondary/50 rounded-lg text-xs font-medium hover:bg-accent/10 hover:text-accent transition-all flex items-center gap-2"
-                        >
-                          <CornerDownRight className="w-3.5 h-3.5" />
-                          {(dict as any).qa.viewAttachment} {idx + 1}
-                        </a>
-                      ))}
+                    <h4 className="text-sm font-bold text-foreground mb-6 font-sans">{(dict as any).qa.supportingMaterials}</h4>
+                    
+                    <div className="space-y-8">
+                      {/* Files/Images/Videos */}
+                      {question.answer.attachments.filter((a: string) => !a.startsWith("LINK:")).length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {question.answer.attachments.filter((a: string) => !a.startsWith("LINK:")).map((url: string, idx: number) => {
+                            const isImage = url.match(/\.(jpg|jpeg|png|webp|gif|avif)$/i) || url.includes("/image/upload/");
+                            const isVideo = url.match(/\.(mp4|webm|ogg)$/i) || url.includes("/video/upload/");
+                            
+                            return (
+                              <div key={idx} className="group relative">
+                                {isImage ? (
+                                  <a href={url} target="_blank" rel="noreferrer" className="block aspect-video overflow-hidden rounded-2xl border border-border hover:border-accent/40 transition-all">
+                                    <img src={url} alt="Attachment" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                  </a>
+                                ) : isVideo ? (
+                                  <div className="aspect-video rounded-2xl overflow-hidden border border-border">
+                                    <video src={url} controls className="w-full h-full" />
+                                  </div>
+                                ) : (
+                                  <a 
+                                    href={url} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="flex items-center gap-3 p-4 bg-secondary/30 rounded-2xl border border-border hover:border-accent/40 hover:bg-accent/5 transition-all"
+                                  >
+                                    <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center text-accent">
+                                      <CornerDownRight className="w-5 h-5" />
+                                    </div>
+                                    <div className="font-sans">
+                                      <div className="text-xs font-bold text-foreground">{(dict as any).qa.viewAttachment}</div>
+                                      <div className="text-[10px] text-muted-foreground uppercase tracking-wider">File {idx + 1}</div>
+                                    </div>
+                                  </a>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* External Links */}
+                      {question.answer.attachments.filter((a: string) => a.startsWith("LINK:")).length > 0 && (
+                        <div className="space-y-3 font-sans">
+                          {question.answer.attachments.filter((a: string) => a.startsWith("LINK:")).map((prefixedLink: string, idx: number) => {
+                             const link = prefixedLink.replace("LINK:", "");
+                             return (
+                              <a 
+                                key={idx}
+                                href={link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-3 p-3 bg-accent/5 rounded-xl border border-accent/20 hover:border-accent hover:bg-accent/10 transition-all group"
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                                  <Share2 className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-foreground truncate">{link}</div>
+                                  <div className="text-[10px] text-accent font-bold uppercase tracking-widest">External Link</div>
+                                </div>
+                              </a>
+                             );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -142,7 +196,11 @@ export default async function QuestionDetailPage({
                 <AnswerComments 
                   answerId={question.answer.id}
                   comments={question.answer.comments || []}
-                  currentUser={session?.user || null}
+                  currentUser={session?.user ? {
+                    id: session.user.id,
+                    name: session.user.name || null,
+                    image: session.user.image || null
+                  } : null}
                 />
               </div>
             ) : (

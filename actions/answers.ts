@@ -10,6 +10,7 @@ import { QuestionStatus } from "@prisma/client";
 const submitAnswerSchema = z.object({
   content: z.string().min(10, "Answer must be at least 10 characters").max(10000),
   attachments: z.array(z.string().url()).optional(),
+  links: z.array(z.string().url()).optional(),
 });
 
 const updateAnswerSchema = submitAnswerSchema.partial();
@@ -46,7 +47,10 @@ export async function submitAnswer(questionId: string, input: SubmitAnswerInput)
       const answer = await tx.answer.create({
         data: {
           content: validated.content,
-          attachments: validated.attachments || [],
+          attachments: [
+            ...(validated.attachments || []),
+            ...(validated.links || []).map(l => `LINK:${l}`)
+          ],
           questionId,
           authorId: session.user.id,
         },
@@ -113,8 +117,11 @@ export async function updateAnswer(id: string, input: UpdateAnswerInput) {
       where: { id },
       data: {
         content: validated.content,
-        ...(validated.attachments !== undefined && {
-          attachments: validated.attachments,
+        ...((validated.attachments !== undefined || validated.links !== undefined) && {
+          attachments: [
+            ...(validated.attachments || []),
+            ...(validated.links || []).map(l => `LINK:${l}`)
+          ],
         }),
       },
     });

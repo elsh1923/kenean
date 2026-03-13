@@ -6,8 +6,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const submitCommentSchema = z.object({
-  content: z.string().min(2, "Comment must be at least 2 characters").max(1000),
+  content: z.string().min(2, "Comment must be at least 2 characters").max(5000),
   answerId: z.string(),
+  attachments: z.array(z.string().url()).optional(),
+  links: z.array(z.string().url()).optional(),
 });
 
 export type SubmitCommentInput = z.infer<typeof submitCommentSchema>;
@@ -29,9 +31,19 @@ export async function addAnswerComment(input: SubmitCommentInput) {
       return { success: false, error: "Answer not found" };
     }
 
+    // Embed attachments and links into content as metadata
+    let finalContent = validated.content;
+    if ((validated.attachments && validated.attachments.length > 0) || (validated.links && validated.links.length > 0)) {
+      const metadata = {
+        attachments: validated.attachments || [],
+        links: validated.links || []
+      };
+      finalContent += `\n\n---METADATA---\n${JSON.stringify(metadata)}`;
+    }
+
     const comment = await prisma.answerComment.create({
       data: {
-        content: validated.content,
+        content: finalContent,
         answerId: validated.answerId,
         userId: session.user.id,
       },

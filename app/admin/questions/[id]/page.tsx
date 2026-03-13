@@ -10,7 +10,9 @@ import {
   getDiscussions,
   addDiscussion,
 } from "@/actions";
-import { ArrowLeft, Send, MessageCircle, User, Clock } from "lucide-react";
+import { ArrowLeft, Send, MessageCircle, User, Clock, Image as ImageIcon, Video, Link as LinkIcon, FileText, X, Plus, Loader2 } from "lucide-react";
+import { uploadFile } from "@/actions";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function QuestionDetailPage() {
@@ -23,8 +25,13 @@ export default function QuestionDetailPage() {
   const [discussions, setDiscussions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [answerContent, setAnswerContent] = useState("");
+  const [answerAttachments, setAnswerAttachments] = useState<string[]>([]);
+  const [answerLinks, setAnswerLinks] = useState<string[]>([]);
+  const [newLink, setNewLink] = useState("");
+  const [showLinkInput, setShowLinkInput] = useState(false);
   const [discussionContent, setDiscussionContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -46,6 +53,10 @@ export default function QuestionDetailPage() {
     if (answerResult.success && answerResult.data) {
       setAnswer(answerResult.data);
       setAnswerContent(answerResult.data.content);
+      // Extract links and images from attachments
+      const allAttachments = answerResult.data.attachments || [];
+      setAnswerAttachments(allAttachments.filter((a: string) => !a.startsWith("LINK:")));
+      setAnswerLinks(allAttachments.filter((a: string) => a.startsWith("LINK:")).map((l: string) => l.replace("LINK:", "")));
     }
 
     if (discussionsResult.success && discussionsResult.data) {
@@ -55,6 +66,47 @@ export default function QuestionDetailPage() {
     setLoading(false);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      let type: "image" | "video" | "document" = "image";
+      if (file.type.startsWith("video/")) type = "video";
+      else if (file.type === "application/pdf" || file.type.includes("word")) type = "document";
+
+      formData.append("type", type === "document" ? "document" : type);
+      formData.append("folder", `orthodox-learning-hub/answers/${type}s`);
+
+      const result = await uploadFile(formData);
+      if (result.success && result.data && 'url' in result.data) {
+        setAnswerAttachments(prev => [...prev, result.data.url as string]);
+      } else {
+        alert(result.error || "Upload failed");
+      }
+    } catch (err) {
+      alert("Upload error occurred");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const addLink = () => {
+    if (!newLink.trim()) return;
+    try {
+      new URL(newLink);
+      setAnswerLinks(prev => [...prev, newLink]);
+      setNewLink("");
+      setShowLinkInput(false);
+    } catch {
+      alert("Invalid URL");
+    }
+  };
+
   const handleSubmitAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!answerContent.trim()) return;
@@ -62,18 +114,24 @@ export default function QuestionDetailPage() {
     setSubmitting(true);
 
     let result;
+    const payload = {
+      content: answerContent,
+      attachments: answerAttachments,
+      links: answerLinks,
+    };
+
     if (answer) {
-      result = await updateAnswer(answer.id, { content: answerContent });
+      result = await updateAnswer(answer.id, payload);
     } else {
-      result = await submitAnswer(questionId, {
-        content: answerContent,
-      });
+      result = await submitAnswer(questionId, payload);
     }
 
     if (result.success) {
       await loadData();
       if (!answer) {
         setAnswerContent("");
+        setAnswerAttachments([]);
+        setAnswerLinks([]);
       }
     } else {
       alert(result.error);
@@ -233,7 +291,7 @@ export default function QuestionDetailPage() {
           {answer ? "Public Answer" : "Submit Answer"}
         </h2>
 
-        <form onSubmit={handleSubmitAnswer}>
+        <form onSubmit={handleSubmitAnswer} className="space-y-4">
           <textarea
             value={answerContent}
             onChange={(e) => setAnswerContent(e.target.value)}
@@ -242,12 +300,80 @@ export default function QuestionDetailPage() {
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
             required
           />
+
+          {/* Attachments Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg cursor-pointer transition-all border border-white/10 text-sm">
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add Photo/Video/Document
+                <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*,application/pdf" disabled={uploading} />
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowLinkInput(!showLinkInput)}
+                className={cn("flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all border border-white/10 text-sm", showLinkInput && "bg-gold/20 border-gold/50 text-gold")}
+              >
+                <LinkIcon className="w-4 h-4" />
+                Add Link
+              </button>
+            </div>
+
+            {showLinkInput && (
+              <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
+                <input
+                  type="url"
+                  value={newLink}
+                  onChange={(e) => setNewLink(e.target.value)}
+                  placeholder="Paste URL here..."
+                  className="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gold/50 text-sm"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addLink())}
+                />
+                <button
+                  type="button"
+                  onClick={addLink}
+                  className="px-4 py-2 bg-gold text-primary-dark rounded-lg text-sm font-bold hover:bg-gold/90"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+
+            {/* Previews */}
+            {(answerAttachments.length > 0 || answerLinks.length > 0) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-white/5 rounded-xl border border-white/10">
+                {answerAttachments.map((url, i) => (
+                  <div key={i} className="relative group bg-white/5 border border-white/10 rounded-lg p-2 flex items-center gap-3">
+                    <div className="w-10 h-10 flex items-center justify-center bg-white/10 rounded">
+                      <ImageIcon className="w-5 h-5 text-gold" />
+                    </div>
+                    <span className="text-xs text-gray-400 truncate flex-1">Attachment {i+1}</span>
+                    <button type="button" onClick={() => setAnswerAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-500 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {answerLinks.map((link, i) => (
+                  <div key={i} className="relative group bg-white/5 border border-white/10 rounded-lg p-2 flex items-center gap-3">
+                    <div className="w-10 h-10 flex items-center justify-center bg-white/10 rounded">
+                      <LinkIcon className="w-5 h-5 text-gold" />
+                    </div>
+                    <span className="text-xs text-gray-400 truncate flex-1">{link}</span>
+                    <button type="button" onClick={() => setAnswerLinks(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-500 p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
-            disabled={submitting || !answerContent.trim()}
-            className="mt-4 flex items-center gap-2 px-8 py-3 bg-gold text-primary-dark rounded-lg font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50"
+            disabled={submitting || uploading || !answerContent.trim()}
+            className="flex items-center gap-2 px-8 py-3 bg-gold text-primary-dark rounded-lg font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50"
           >
-            <Send className="w-5 h-5" />
+            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             {answer ? "Update Answer" : "Submit Answer"}
           </button>
         </form>
