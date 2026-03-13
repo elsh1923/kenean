@@ -367,6 +367,8 @@ function LessonForm({
     type: lesson?.type || "VIDEO",
     youtubeUrl: lesson?.youtubeUrl || "",
     pdfUrl: lesson?.pdfUrl || "",
+    content: lesson?.content || "",
+    contentImages: lesson?.contentImages || [],
     lessonNumber: lesson?.lessonNumber || 1,
     duration: lesson?.duration || 0,
     volumeId: lesson?.volumeId || volumeId,
@@ -376,6 +378,9 @@ function LessonForm({
   const [isTranslatingTitle, setIsTranslatingTitle] = useState(false);
   const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  const { uploadMultipleImages } = require("@/actions");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -399,6 +404,40 @@ function LessonForm({
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    
+    setIsUploadingImages(true);
+    try {
+      const formUploadData = new FormData();
+      files.forEach(file => formUploadData.append("files", file));
+      formUploadData.append("folder", "orthodox-learning-hub/books");
+
+      const result = await uploadMultipleImages(formUploadData);
+      if (result.success && result.data) {
+        const urls = result.data.map((r: any) => r.url);
+        setFormData(prev => ({ 
+          ...prev, 
+          contentImages: [...(prev.contentImages || []), ...urls] 
+        }));
+      } else {
+        alert(result.error || "Upload failed");
+      }
+    } catch (err) {
+      alert("An error occurred during upload");
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      contentImages: (prev.contentImages || []).filter((_: any, i: number) => i !== index)
+    }));
   };
 
   const handleChange = (
@@ -581,33 +620,86 @@ function LessonForm({
           </div>
         </div>
       ) : (
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            PDF / Document
-          </label>
-          <div className="flex gap-4 items-center mb-2">
-            <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-medium text-sm border border-white/20">
-               {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
-               <input
-                 type="file"
-                 accept="application/pdf"
-                 className="hidden"
-                 onChange={handleFileUpload}
-                 disabled={isUploading}
-               />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              PDF / Document
             </label>
-            {formData.pdfUrl && (
-              <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle className="w-4 h-4"/> PDF Ready</span>
+            <div className="flex gap-4 items-center mb-2">
+              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-medium text-sm border border-white/20">
+                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
+                 <input
+                   type="file"
+                   accept="application/pdf"
+                   className="hidden"
+                   onChange={handleFileUpload}
+                   disabled={isUploading}
+                 />
+              </label>
+              {formData.pdfUrl && (
+                <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle className="w-4 h-4"/> PDF Ready</span>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Book Pages (Images for carousel)
+            </label>
+            <div className="flex gap-4 items-center mb-2">
+              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all font-medium text-sm border border-white/20">
+                 {isUploadingImages ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload Pages"}
+                 <input
+                   type="file"
+                   multiple
+                   accept="image/*"
+                   className="hidden"
+                   onChange={handleImagesUpload}
+                   disabled={isUploadingImages}
+                 />
+              </label>
+              {(formData.contentImages?.length || 0) > 0 && (
+                <span className="text-sm text-gold flex items-center gap-1">
+                  <Book className="w-4 h-4"/> {formData.contentImages?.length} Pages Uploaded
+                </span>
+              )}
+            </div>
+
+            {/* Image Preview Grid */}
+            {(formData.contentImages?.length || 0) > 0 && (
+              <div className="grid grid-cols-4 md:grid-cols-6 gap-2 mt-2 p-2 bg-black/20 rounded-lg max-h-40 overflow-y-auto">
+                {formData.contentImages?.map((url: string, index: number) => (
+                  <div key={index} className="relative group aspect-[3/4]">
+                    <img src={url} alt={`Page ${index + 1}`} className="w-full h-full object-cover rounded shadow-sm" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-[8px] text-center text-white py-0.5">
+                      P{index + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-          {formData.pdfUrl && (
-            <input
-              type="url"
-              readOnly
-              value={formData.pdfUrl}
-              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 text-sm focus:outline-none focus:border-gold/50 cursor-not-allowed"
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Book Text Content (Optional)
+            </label>
+            <textarea
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              rows={6}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 font-serif"
+              placeholder="Full content of the book if not using images/PDF..."
             />
-          )}
+          </div>
         </div>
       )}
 

@@ -17,6 +17,8 @@ const lessonBaseSchema = z.object({
   type: z.enum(["VIDEO", "BOOK"]).default("VIDEO"),
   youtubeUrl: z.string().url("Invalid YouTube URL").optional().or(z.literal("")),
   pdfUrl: z.string().url("Invalid PDF URL").optional().or(z.literal("")),
+  content: z.string().optional(),
+  contentImages: z.array(z.string().url()).optional(),
   thumbnailUrl: z.string().url().optional(),
   lessonNumber: z.number().int().positive("Lesson number must be positive"),
   duration: z.number().int().positive().optional(),
@@ -387,6 +389,17 @@ export async function deleteLesson(id: string) {
       if (publicId) {
         // PDF is raw/auto in lib/cloudinary but let's try raw as specified in uploadDocument
         cleanupPromises.push(deleteFile(publicId, "raw"));
+      }
+    }
+
+    if (lesson.contentImages && lesson.contentImages.length > 0) {
+      for (const imageUrl of lesson.contentImages) {
+        if (imageUrl.includes("cloudinary.com")) {
+          const publicId = extractPublicId(imageUrl);
+          if (publicId) {
+            cleanupPromises.push(deleteFile(publicId, "image"));
+          }
+        }
       }
     }
 

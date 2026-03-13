@@ -56,10 +56,24 @@ export default async function LessonDetailPage({
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
+          ) : lesson.type === "BOOK" && lesson.contentImages && lesson.contentImages.length > 0 ? (
+            <div className="w-full h-full overflow-y-auto bg-neutral-900 p-4 scrollbar-hide">
+              <div className="max-w-2xl mx-auto space-y-4">
+                {lesson.contentImages.map((url: string, i: number) => (
+                  <img 
+                    key={i} 
+                    src={url} 
+                    alt={`Page ${i + 1}`} 
+                    className="w-full h-auto shadow-2xl rounded-sm"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-4">
               <PlayCircle className="w-16 h-16 opacity-20" />
-              <p>{lang === "en" ? "Video content not found" : lang === "am" ? "የቪዲዮ ይዘቱ አልተገኘም" : "አልተረክበ"}</p>
+              <p>{lang === "en" ? "Content not found" : lang === "am" ? "ይዘቱ አልተገኘም" : "አልተረክበ"}</p>
             </div>
           )}
         </div>
@@ -114,6 +128,11 @@ export default async function LessonDetailPage({
               <h2 className="text-2xl font-serif font-bold text-foreground border-b border-border pb-4 mb-6">
                 {lang === "en" ? "About this Lesson" : lang === "am" ? "ስለዚህ ትምህርት" : "በእንተ ትምህርት"}
               </h2>
+              {lesson.content ? (
+                <div className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap font-serif mb-8 bg-secondary/10 p-6 rounded-2xl border border-border/50">
+                  {lesson.content}
+                </div>
+              ) : null}
               <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap font-serif">
                 {desc || (lang === "en" ? "No description provided for this lesson." : lang === "am" ? "ለዚህ ትምህርት ምንም መግለጫ አልተሰጠም።" : "አልተረክበ።")}
               </p>
