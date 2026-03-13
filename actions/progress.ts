@@ -15,12 +15,23 @@ export async function getUserProgress() {
           select: {
             id: true,
             title: true,
+            titleAmharic: true,
+            titleGeez: true,
             volumeId: true,
             volume: {
               select: {
                 title: true,
+                titleAmharic: true,
+                titleGeez: true,
                 categoryId: true,
-                category: { select: { name: true } }
+                volumeNumber: true,
+                category: { 
+                  select: { 
+                    name: true,
+                    nameAmharic: true,
+                    nameGeez: true
+                  } 
+                }
               }
             }
           }

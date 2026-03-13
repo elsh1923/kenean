@@ -66,7 +66,7 @@ export default async function ProfilePage() {
         {/* Link to Progress Dashboard */}
         <Link href="/dashboard" className="block w-full bg-accent/10 border border-accent/20 rounded-xl p-4 text-center hover:bg-accent/20 transition-colors">
           <span className="font-bold text-accent flex items-center justify-center gap-2">
-            View Student Progress Dashboard
+            {(dict as any).profile.viewDashboard}
           </span>
         </Link>
 
