@@ -58,7 +58,13 @@ export function Navbar() {
     });
   };
 
-  const navLinks = [
+  interface NavLink {
+    href: string;
+    label: string;
+    children?: { href: string; label: string }[];
+  }
+
+  const navLinks: NavLink[] = [
     { 
       href: "/lessons?type=VIDEO", 
       label: dict.nav.videos,
@@ -80,7 +86,7 @@ export function Navbar() {
             <BookOpen className="h-6 w-6" />
           </div>
           <span className="font-serif text-xl font-bold tracking-tight text-primary">
-            {(dict as any).common.siteName}
+            {dict.common.siteName}
           </span>
         </Link>
 

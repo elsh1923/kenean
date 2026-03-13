@@ -10,6 +10,7 @@ import {
   deleteLesson,
   toggleLessonPublished,
   uploadFile,
+  uploadMultipleImages,
   CreateLessonInput,
   UpdateLessonInput,
 } from "@/actions";
@@ -379,8 +380,6 @@ function LessonForm({
   const [isTranslatingDesc, setIsTranslatingDesc] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-
-  const { uploadMultipleImages } = require("@/actions");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

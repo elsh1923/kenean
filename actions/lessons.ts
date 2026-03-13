@@ -21,7 +21,7 @@ const lessonBaseSchema = z.object({
   contentImages: z.array(z.string().url()).optional(),
   thumbnailUrl: z.string().url().optional(),
   lessonNumber: z.number().int().positive("Lesson number must be positive"),
-  duration: z.number().int().positive().optional(),
+  duration: z.number().int().min(0).optional(),
   volumeId: z.string().min(1, "Volume is required"),
   published: z.boolean().default(false),
 });
@@ -291,8 +291,11 @@ export async function updateLesson(id: string, input: UpdateLessonInput) {
 
     // Update thumbnail if YouTube URL changed and no thumbnail provided
     let thumbnailUrl = validated.thumbnailUrl;
-    if (validated.type === "VIDEO" && validated.youtubeUrl && !validated.thumbnailUrl) {
-      const videoId = extractYouTubeId(validated.youtubeUrl);
+    const effectiveType = validated.type || currentLesson.type;
+    const effectiveYoutubeUrl = validated.youtubeUrl || currentLesson.youtubeUrl;
+
+    if (!thumbnailUrl && effectiveType === "VIDEO" && effectiveYoutubeUrl && validated.youtubeUrl) {
+      const videoId = extractYouTubeId(effectiveYoutubeUrl);
       if (videoId) {
         thumbnailUrl = getYouTubeThumbnail(videoId);
       }
