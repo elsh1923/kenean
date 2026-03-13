@@ -58,10 +58,15 @@ export function AnswerComments({ answerId, comments, currentUser }: AnswerCommen
       formData.append("folder", `orthodox-learning-hub/comments/${type}s`);
 
       const result = await uploadFile(formData);
-      if (result.success && result.data && 'url' in result.data) {
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+
+      if (result.data && 'url' in result.data) {
         setAttachments(prev => [...prev, result.data.url as string]);
       } else {
-        setError(result.error || "Upload failed");
+        setError("Upload failed: No URL returned");
       }
     } catch (err) {
       setError("Upload error occurred");

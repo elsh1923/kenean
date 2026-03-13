@@ -83,10 +83,15 @@ export default function QuestionDetailPage() {
       formData.append("folder", `orthodox-learning-hub/answers/${type}s`);
 
       const result = await uploadFile(formData);
-      if (result.success && result.data && 'url' in result.data) {
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
+      if (result.data && 'url' in result.data) {
         setAnswerAttachments(prev => [...prev, result.data.url as string]);
       } else {
-        alert(result.error || "Upload failed");
+        alert("Upload failed: No URL returned");
       }
     } catch (err) {
       alert("Upload error occurred");

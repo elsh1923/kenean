@@ -397,10 +397,15 @@ function LessonForm({
       formUploadData.append("folder", field === "pdfUrl" ? "orthodox-learning-hub/documents" : "orthodox-learning-hub/lessons");
 
       const result = await uploadFile(formUploadData);
-      if (result.success && result.data && 'url' in result.data) {
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
+      if (result.data && 'url' in result.data) {
         setFormData(prev => ({ ...prev, [field]: result.data.url as string }));
       } else {
-        alert(result.error || "Upload failed");
+        alert("Upload failed: No URL returned");
       }
     } catch (err) {
       alert("An error occurred during upload");
@@ -421,14 +426,17 @@ function LessonForm({
       formUploadData.append("folder", "orthodox-learning-hub/books");
 
       const result = await uploadMultipleImages(formUploadData);
-      if (result.success && result.data) {
+      if (!result.success) {
+        alert(result.error);
+        return;
+      }
+
+      if (result.data) {
         const urls = result.data.map((r: any) => r.url);
         setFormData(prev => ({ 
           ...prev, 
           contentImages: [...(prev.contentImages || []), ...urls] 
         }));
-      } else {
-        alert(result.error || "Upload failed");
       }
     } catch (err) {
       alert("An error occurred during upload");
