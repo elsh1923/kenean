@@ -99,7 +99,11 @@ export default async function VideoLessonsPage({
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Video className="w-10 h-10 text-muted-foreground/30" />
+                        {isBook ? (
+                          <BookOpen className="w-10 h-10 text-muted-foreground/30" />
+                        ) : (
+                          <Video className="w-10 h-10 text-muted-foreground/30" />
+                        )}
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">

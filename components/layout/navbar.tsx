@@ -60,12 +60,12 @@ export function Navbar() {
 
   const navLinks = [
     { 
-      href: "/lessons", 
-      label: dict.nav.lessons,
-      children: [
-        { href: "/lessons?type=VIDEO", label: dict.nav.videos },
-        { href: "/lessons?type=BOOK", label: dict.nav.books },
-      ]
+      href: "/lessons?type=VIDEO", 
+      label: dict.nav.videos,
+    },
+    { 
+      href: "/lessons?type=BOOK", 
+      label: dict.nav.books,
     },
     { href: "/questions", label: dict.nav.qa },
     { href: "/about", label: dict.nav.about },
