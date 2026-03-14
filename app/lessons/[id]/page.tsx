@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkCompletedButton } from "@/components/lessons/MarkCompletedButton";
 import { getLessonProgress } from "@/actions";
+import { PdfViewer } from "@/components/lessons/PdfViewer";
 
 function extractYouTubeId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -51,7 +52,7 @@ export default async function LessonDetailPage({
         </div>
 
         {/* Video Player Section */}
-        <div className="bg-black rounded-2xl overflow-hidden shadow-2xl border border-border mb-10 aspect-video relative group">
+        <div className={`bg-black rounded-2xl overflow-hidden shadow-2xl border border-border mb-10 relative group w-full ${lesson.type === "BOOK" && (lesson.pdfUrl || (lesson.contentImages && lesson.contentImages.length > 0)) ? "h-[85vh] md:h-[90vh]" : "aspect-video"}`}>
           {videoId ? (
             <iframe
               src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
@@ -75,23 +76,7 @@ export default async function LessonDetailPage({
               </div>
             </div>
           ) : lesson.type === "BOOK" && lesson.pdfUrl ? (
-            <div className="relative w-full h-full">
-              <iframe
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(lesson.pdfUrl)}&embedded=true`}
-                title={title}
-                className="w-full h-full border-0 bg-white"
-                allowFullScreen
-              ></iframe>
-              <a 
-                href={lesson.pdfUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="absolute top-4 right-4 px-4 py-2 bg-black/60 hover:bg-black/80 text-white text-sm font-bold rounded-lg backdrop-blur-md transition-all flex items-center gap-2 shadow-lg"
-              >
-                <FileText className="w-4 h-4" />
-                {lang === "en" ? "Download PDF" : lang === "am" ? "ፒዲኤፍ አውርድ" : "አውርድ PDF"}
-              </a>
-            </div>
+            <PdfViewer url={lesson.pdfUrl} lang={lang} />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-4">
               <PlayCircle className="w-16 h-16 opacity-20" />
