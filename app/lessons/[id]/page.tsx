@@ -74,6 +74,24 @@ export default async function LessonDetailPage({
                 ))}
               </div>
             </div>
+          ) : lesson.type === "BOOK" && lesson.pdfUrl ? (
+            <div className="relative w-full h-full">
+              <iframe
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(lesson.pdfUrl)}&embedded=true`}
+                title={title}
+                className="w-full h-full border-0 bg-white"
+                allowFullScreen
+              ></iframe>
+              <a 
+                href={lesson.pdfUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="absolute top-4 right-4 px-4 py-2 bg-black/60 hover:bg-black/80 text-white text-sm font-bold rounded-lg backdrop-blur-md transition-all flex items-center gap-2 shadow-lg"
+              >
+                <FileText className="w-4 h-4" />
+                {lang === "en" ? "Download PDF" : lang === "am" ? "ፒዲኤፍ አውርድ" : "አውርድ PDF"}
+              </a>
+            </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-4">
               <PlayCircle className="w-16 h-16 opacity-20" />
