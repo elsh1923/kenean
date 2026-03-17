@@ -37,7 +37,7 @@ export default async function AboutPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen text-foreground">
+    <div className="flex flex-col min-h-screen text-foreground -mt-8">
       {/* Hero Section */}
       <section className="relative h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">

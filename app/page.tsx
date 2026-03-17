@@ -46,7 +46,7 @@ export default async function Home() {
   const latestLessons = (latestLessonsData.success ? latestLessonsData.data : []) as LessonWithRelations[];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen -mt-8">
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         {/* Background Image with Overlay */}
