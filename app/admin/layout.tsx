@@ -26,7 +26,7 @@ export default async function AdminLayout({
       <AdminSidebar userName={session.user.name || session.user.email} />
       
       <main className="lg:pl-64">
-        <div className="p-6 lg:p-8">
+        <div className="p-6 lg:p-8 pt-10 lg:pt-14">
           {children}
         </div>
       </main>

@@ -52,7 +52,7 @@ export function TeacherSidebar({ userName }: { userName?: string }) {
     <>
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-primary-dark/80 backdrop-blur-md text-white"
+        className="lg:hidden fixed top-[72px] left-4 z-50 p-2 rounded-lg bg-primary-dark/80 backdrop-blur-md text-white border border-gold/20"
       >
         {isMobileMenuOpen ? (
           <X className="w-6 h-6" />
@@ -63,7 +63,7 @@ export function TeacherSidebar({ userName }: { userName?: string }) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-primary-dark via-primary-dark/95 to-primary-dark/90 backdrop-blur-xl border-r border-gold/20 transition-transform duration-300 ease-in-out",
+          "fixed top-16 bottom-0 left-0 z-40 w-64 bg-gradient-to-b from-primary-dark via-primary-dark/95 to-primary-dark/90 backdrop-blur-xl border-r border-gold/20 transition-transform duration-300 ease-in-out",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
