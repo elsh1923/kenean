@@ -45,30 +45,35 @@ export default async function ProfilePage() {
         </div>
 
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
-            <MessageCircleQuestion className="w-8 h-8 text-accent mx-auto mb-2" />
-            <div className="text-3xl font-bold text-primary">
-              {user._count.questions}
+        {/* Student-only: Stats + Dashboard link */}
+        {session.user.role === "user" && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
+                <MessageCircleQuestion className="w-8 h-8 text-accent mx-auto mb-2" />
+                <div className="text-3xl font-bold text-primary">
+                  {user._count.questions}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.questionsAsked}</div>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
+                <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <div className="text-3xl font-bold text-primary">
+                  {user._count.answers}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.answersGiven}</div>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.questionsAsked}</div>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-6 text-center shadow-sm">
-            <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <div className="text-3xl font-bold text-primary">
-              {user._count.answers}
-            </div>
-            <div className="text-sm text-muted-foreground mt-1">{(dict as any).profile.answersGiven}</div>
-          </div>
-        </div>
 
-        {/* Link to Progress Dashboard */}
-        <Link href="/dashboard" className="block w-full bg-accent/10 border border-accent/20 rounded-xl p-4 text-center hover:bg-accent/20 transition-colors">
-          <span className="font-bold text-accent flex items-center justify-center gap-2">
-            {(dict as any).profile.viewDashboard}
-          </span>
-        </Link>
+            {/* Link to Progress Dashboard */}
+            <Link href="/dashboard" className="block w-full bg-accent/10 border border-accent/20 rounded-xl p-4 text-center hover:bg-accent/20 transition-colors">
+              <span className="font-bold text-accent flex items-center justify-center gap-2">
+                {(dict as any).profile.viewDashboard}
+              </span>
+            </Link>
+          </>
+        )}
 
         {/* Editable form (Client Component) */}
         <ProfileClient 
