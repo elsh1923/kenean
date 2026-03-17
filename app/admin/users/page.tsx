@@ -123,7 +123,7 @@ export default function UsersPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-4xl font-serif font-bold text-gold mb-2">Users & Teachers</h1>
+        <h1 className="text-4xl font-serif font-bold text-gold mb-2">Users & Teacher Admins</h1>
         <p className="text-gray-300">Manage user accounts and promote teachers to answer spiritual questions</p>
       </div>
 
@@ -252,7 +252,7 @@ export default function UsersPage() {
                             : "bg-gray-500/20 text-gray-400"
                         }`}
                       >
-                        {user.role === "admin" ? "Super Admin" : user.role === "teacher" ? "Teacher" : "User"}
+                        {user.role === "admin" ? "Main Admin" : user.role === "teacher" ? "Teacher Admin" : "User"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -295,7 +295,7 @@ export default function UsersPage() {
                           <button
                             onClick={() => handleUpdateRole(user.id, "admin")}
                             className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                            title="Promote to Super Admin (Full access to all settings)"
+                            title="Promote to Main Admin (Full access to all settings)"
                           >
                             <Shield className="w-4 h-4" />
                           </button>
@@ -305,7 +305,7 @@ export default function UsersPage() {
                           <button
                             onClick={() => handleUpdateRole(user.id, "teacher")}
                             className="p-2 text-gray-400 hover:text-gold hover:bg-gold/10 rounded-lg transition-colors"
-                            title="Promote to Teacher (Restricted to answering questions)"
+                            title="Promote to Teacher Admin (Restricted to answering questions)"
                           >
                             <GraduationCap className="w-4 h-4" />
                           </button>
@@ -317,7 +317,7 @@ export default function UsersPage() {
                             className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
                             title="Demote to Regular User"
                           >
-                            <UserCheck className="w-4 h-4" />
+                            <Users className="w-4 h-4" />
                           </button>
                         )}
 

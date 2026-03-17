@@ -237,6 +237,7 @@ export async function getAdminStats() {
     const [
       totalUsers,
       totalAdmins,
+      totalTeachers,
       totalCategories,
       totalVolumes,
       totalLessons,
@@ -248,7 +249,8 @@ export async function getAdminStats() {
       recentLessons,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.user.count({ where: { role: { in: ["admin", "teacher"] } } }),
+      prisma.user.count({ where: { role: "admin" } }),
+      prisma.user.count({ where: { role: "teacher" } }),
       prisma.category.count(),
       prisma.volume.count(),
       prisma.lesson.count(),
@@ -279,6 +281,7 @@ export async function getAdminStats() {
         users: {
           total: totalUsers,
           admins: totalAdmins,
+          teachers: totalTeachers,
         },
         content: {
           categories: totalCategories,

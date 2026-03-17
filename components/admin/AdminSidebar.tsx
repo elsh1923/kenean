@@ -88,7 +88,7 @@ export function AdminSidebar({ userName }: AdminSidebarProps) {
           {/* Header */}
           <div className="p-6 border-b border-gold/20">
             <h1 className="text-2xl font-serif font-bold text-gold">
-              Admin Panel
+              Main Admin Panel
             </h1>
             {userName && (
               <p className="mt-2 text-sm text-gray-300">

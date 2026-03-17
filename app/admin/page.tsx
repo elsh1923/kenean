@@ -41,7 +41,7 @@ export default async function AdminDashboard() {
             className="flex items-center gap-2 px-6 py-3 bg-gold/10 text-gold border border-gold/30 rounded-xl font-bold hover:bg-gold hover:text-primary-dark transition-all"
           >
             <GraduationCap className="w-5 h-5" />
-            Teacher Mode
+            Teacher Admin Workspace
           </Link>
         </div>
       </div>
@@ -54,9 +54,14 @@ export default async function AdminDashboard() {
           icon="Users"
         />
         <StatCard
-          title="Admins/Teachers"
+          title="Main Admins"
           value={users.admins}
-          icon="Users"
+          icon="Shield"
+        />
+        <StatCard
+          title="Teacher Admins"
+          value={users.teachers}
+          icon="GraduationCap"
         />
         <StatCard
           title="Categories"

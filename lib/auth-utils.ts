@@ -33,7 +33,7 @@ export async function requireAdmin() {
 }
 
 /**
- * Require ONLY admin role - for system settings, user management, etc.
+ * Require ONLY Main Admin role - for system settings, user management, etc.
  */
 export async function requireSuperAdmin() {
   const session = await requireAuth();

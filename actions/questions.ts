@@ -248,9 +248,9 @@ export async function getQuestion(id: string) {
       return { success: false, error: "Question not found" };
     }
 
-    // Only admins can see non-answered questions
+    // Admins and Teachers can see non-answered questions
     if (question.status !== QuestionStatus.ANSWERED) {
-      if (!session || session.user.role !== "admin") {
+      if (!session || (session.user.role !== "admin" && session.user.role !== "teacher")) {
         return { success: false, error: "Question not found" };
       }
     }

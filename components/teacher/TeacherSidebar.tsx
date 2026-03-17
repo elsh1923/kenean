@@ -70,8 +70,7 @@ export function TeacherSidebar({ userName }: { userName?: string }) {
         <div className="flex flex-col h-full font-sans">
           <div className="p-6 border-b border-gold/20">
             <h1 className="text-2xl font-serif font-bold text-gold">
-              {(dict as any).nav.lessons} {/* Using Lessons for "Panel" or just translate Teacher Panel */}
-              Teacher Panel
+              Teacher Admin Panel
             </h1>
             {userName && (
               <p className="mt-2 text-sm text-gray-300">
