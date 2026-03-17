@@ -352,7 +352,7 @@ export async function getMyProfile() {
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  image: z.string().url().optional().nullable(),
+  image: z.string().optional().nullable(),
 });
 
 // Update current user's profile (any authenticated user)

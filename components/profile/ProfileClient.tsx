@@ -67,10 +67,39 @@ export function ProfileClient({ initialName, userEmail, initialImage }: ProfileC
       formData.append("type", "image");
       formData.append("folder", "canaan/profiles");
 
-      const result = await uploadFile(formData);
+      const uploadResult = await uploadFile(formData);
+      if (uploadResult.success) {
+        const newImageUrl = uploadResult.data.url;
+        setImage(newImageUrl);
+        
+        // Auto-save the profile with the new image
+        const updateResult = await updateMyProfile({ name, image: newImageUrl });
+        if (updateResult.success) {
+          setSuccess(true);
+          router.refresh();
+          setTimeout(() => setSuccess(false), 3000);
+        } else {
+          setError(updateResult.error || (dict as any).common.error);
+        }
+      } else {
+        setError(uploadResult.error || (dict as any).common.error);
+      }
+    } catch (err) {
+      setError((dict as any).common.error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    setError("");
+    setIsUploading(true);
+    try {
+      const result = await updateMyProfile({ name, image: null });
       if (result.success) {
-        setImage(result.data.url);
+        setImage(null);
         setSuccess(true);
+        router.refresh();
         setTimeout(() => setSuccess(false), 3000);
       } else {
         setError(result.error || (dict as any).common.error);
@@ -80,10 +109,6 @@ export function ProfileClient({ initialName, userEmail, initialImage }: ProfileC
     } finally {
       setIsUploading(false);
     }
-  };
-
-  const handleRemoveImage = () => {
-    setImage(null);
   };
 
   const handleSignOut = async () => {
