@@ -386,6 +386,7 @@ export async function updateMyProfile(input: { name: string; image?: string | nu
 
     revalidatePath("/profile");
     revalidatePath("/admin/profile");
+    revalidatePath("/teacher/profile");
 
     return { success: true, data: user };
   } catch (error) {

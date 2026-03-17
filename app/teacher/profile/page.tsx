@@ -1,158 +1,165 @@
-"use client";
+import { getMyProfile, getAdminStats } from "@/actions";
+import { getSession, requireAuth } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
+import Image from "next/image";
+import { ProfileClient } from "@/components/profile/ProfileClient";
+import {
+  GraduationCap,
+  Mail,
+  Calendar,
+  CheckCircle,
+  MessageSquare,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
+import { getServerDict } from "@/lib/i18n-server";
 
-import { useState, useEffect } from "react";
-import { getMyProfile, updateMyProfile } from "@/actions";
-import { User, Mail, Shield, Calendar, Loader2, CheckCircle } from "lucide-react";
-import { useLanguage } from "@/components/providers/LanguageContext";
+export const metadata = {
+  title: "Teacher Admin Profile | Canaan",
+  description: "Your teacher admin profile",
+};
 
-export default function TeacherProfilePage() {
-  const { dict } = useLanguage();
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState({ type: "", text: "" });
+export default async function TeacherProfilePage() {
+  const session = await getSession();
+  const dict = await getServerDict();
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    setLoading(true);
-    const result = await getMyProfile();
-    if (result.success && result.data) {
-      setProfile(result.data);
-      setName(result.data.name || "");
-    }
-    setLoading(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpdating(true);
-    setMessage({ type: "", text: "" });
-
-    const result = await updateMyProfile({ name });
-    if (result.success) {
-      setMessage({ type: "success", text: (dict as any).profile.success });
-      setProfile({ ...profile, name });
-    } else {
-      setMessage({ type: "error", text: result.error || (dict as any).common.error });
-    }
-    setUpdating(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 text-gold animate-spin" />
-      </div>
-    );
+  if (!session) {
+    redirect("/login?redirect=/teacher/profile");
   }
 
+  // Both admins and teachers can access teacher workspace, 
+  // but let's ensure they are at least staff
+  if (session.user.role !== "admin" && session.user.role !== "teacher") {
+    redirect("/");
+  }
+
+  const [profileResult, statsResult] = await Promise.all([
+    getMyProfile(),
+    getAdminStats(),
+  ]);
+
+  if (!profileResult.success || !profileResult.data) {
+    redirect("/teacher");
+  }
+
+  const user = profileResult.data;
+  const stats = statsResult.success ? statsResult.data : null;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8 font-sans">
+    <div className="space-y-8 font-sans">
+      {/* Header */}
       <div>
-        <h1 className="text-4xl font-serif font-bold text-gold mb-2">{(dict as any).profile.title}</h1>
+        <h1 className="text-4xl font-serif font-bold text-gold mb-2">
+          {(dict as any).profile.title}
+        </h1>
         <p className="text-gray-300">{(dict as any).teacher.teacherInfo}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Profile Card */}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center">
-            <div className="w-24 h-24 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4 border-2 border-gold/30">
-              {profile.image ? (
-                <img src={profile.image} alt={profile.name} className="w-full h-full rounded-full" />
-              ) : (
-                <User className="w-12 h-12 text-gold" />
-              )}
+      {/* Avatar & Info Card */}
+      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        {/* Avatar */}
+        <div className="flex-shrink-0">
+          {user.image ? (
+            <div className="relative w-24 h-24">
+              <Image
+                src={user.image}
+                alt={user.name || "Avatar"}
+                className="rounded-full object-cover ring-4 ring-gold/40"
+                fill
+              />
             </div>
-            <h2 className="text-xl font-bold text-white">{profile.name || (dict as any).profile.unnamedUser}</h2>
-            <p className="text-gray-400 text-sm mb-4">{profile.email}</p>
-            <span className="px-3 py-1 bg-gold/20 text-gold rounded-full text-xs font-bold uppercase tracking-wider">
-              {profile.role}
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-gold/20 border-2 border-gold/40 flex items-center justify-center text-gold text-3xl font-bold font-serif">
+              {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 text-center sm:text-left space-y-3">
+          <div>
+            <h2 className="text-2xl font-serif font-bold text-white">
+              {user.name || (dict as any).profile.unnamedUser}
+            </h2>
+            <span className="inline-flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gold/20 text-gold border border-gold/40">
+              <GraduationCap className="w-3.5 h-3.5" />
+              {(dict as any).teacher.teacherRole}
             </span>
           </div>
 
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl p-6 space-y-4">
-            <div className="flex items-center gap-3 text-gray-300">
-              <Shield className="w-5 h-5 text-gold" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).profile.editProfile}</p>
-                <p className="text-sm font-medium">{(dict as any).teacher.teacherRole}</p>
-              </div>
+          <div className="space-y-1 text-sm text-gray-300">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <Mail className="w-4 h-4 text-gold/60" />
+              <span>{user.email}</span>
             </div>
-            <div className="flex items-center gap-3 text-gray-300">
-              <Calendar className="w-5 h-5 text-gold" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).teacher.joinedLabel}</p>
-                <p className="text-sm font-medium">{new Date(profile.createdAt).toLocaleDateString()}</p>
-              </div>
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <Calendar className="w-4 h-4 text-gold/60" />
+              <span>
+                {(dict as any).teacher.joinedLabel}{" "}
+                {new Date(user.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
             </div>
-            <div className="flex items-center gap-3 text-gray-300">
-              <CheckCircle className="w-5 h-5 text-gold" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-bold">{(dict as any).teacher.answersLabel}</p>
-                <p className="text-sm font-medium">{profile._count.answers} {(dict as any).teacher.answersProvided}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Edit Form */}
-        <div className="md:col-span-2">
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl p-8">
-            <h3 className="text-2xl font-serif font-bold text-gold mb-6">{(dict as any).teacher.accountSettings}</h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {message.text && (
-                <div className={`p-4 rounded-lg text-sm font-medium ${
-                  message.type === "success" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
-                }`}>
-                  {message.text}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">{(dict as any).profile.fullName}</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold/50"
-                  placeholder={(dict as any).auth.namePlaceholder}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">{(dict as any).auth.email}</label>
-                <div className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-500">
-                  <Mail className="w-5 h-5" />
-                  <span>{profile.email}</span>
-                </div>
-                <p className="text-[10px] text-gray-500 italic">{(dict as any).profile.emailCannotChange}</p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={updating}
-                className="w-full py-3 bg-gold text-primary-dark rounded-lg font-bold hover:bg-gold-light transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {updating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    {(dict as any).profile.saving}
-                  </>
-                ) : (
-                  (dict as any).common.save
-                )}
-              </button>
-            </form>
           </div>
         </div>
       </div>
+
+      {/* Teaching Stats */}
+      <div>
+        <h2 className="text-xl font-serif font-bold text-gold mb-4">Teaching Overview</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatBadge 
+            icon={CheckCircle} 
+            label={(dict as any).teacher.answered} 
+            value={user._count.answers} 
+          />
+          {stats && (
+            <>
+              <StatBadge 
+                icon={MessageSquare} 
+                label="Community Questions" 
+                value={stats.questions.total} 
+              />
+              <StatBadge 
+                icon={Clock} 
+                label={(dict as any).teacher.pending} 
+                value={stats.questions.pending} 
+              />
+              <StatBadge 
+                icon={AlertCircle} 
+                label={(dict as any).teacher.claimed} 
+                value={stats.questions.claimed} 
+              />
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Form */}
+      <div className="mt-12 [&_.bg-card]:bg-white/10 [&_.border-border]:border-white/20 [&_.bg-background]:bg-white/5 [&_.text-primary]:text-gold [&_.bg-primary]:bg-gold [&_.text-primary-foreground]:text-black [&_.hover\\:bg-accent]:hover:bg-gold/80 [&_.text-foreground]:text-white [&_.text-muted-foreground]:text-gray-400 [&_.bg-secondary]:bg-white/5">
+        <ProfileClient initialName={user.name || ""} userEmail={user.email} initialImage={user.image} />
+      </div>
+    </div>
+  );
+}
+
+function StatBadge({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: any;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-4 text-center">
+      <Icon className="w-6 h-6 text-gold mx-auto mb-2" />
+      <div className="text-2xl font-bold text-white font-serif">{value}</div>
+      <div className="text-xs text-gray-400 mt-1">{label}</div>
     </div>
   );
 }
