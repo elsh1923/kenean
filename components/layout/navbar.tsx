@@ -153,29 +153,29 @@ export function Navbar() {
 
               {/* Profile Dropdown */}
               <div className={cn(
-                "absolute top-full right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-2xl p-2 backdrop-blur-md bg-card/95 transition-all duration-200",
+                "absolute top-full right-0 mt-2 w-60 bg-popover border border-border rounded-xl shadow-2xl p-2 z-50 transition-all duration-200",
                 isProfileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
               )}>
                 <div className="px-3 py-2 border-b border-border/50 mb-1">
-                  <p className="text-sm font-bold text-foreground line-clamp-1">{session.user.name}</p>
+                  <p className="text-sm font-bold text-foreground line-clamp-1">{session.user.name || "User"}</p>
                   <p className="text-xs text-muted-foreground line-clamp-1">{session.user.email}</p>
                   <span className="mt-1 inline-block px-2 py-0.5 rounded-full bg-accent/10 text-[10px] font-bold text-accent uppercase tracking-widest">
-                    {session.user.role}
+                    {session.user.role === "admin" ? "Main Admin" : session.user.role === "teacher" ? "Teacher Admin" : "Student"}
                   </span>
                 </div>
                 
-                <Link href="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium hover:bg-secondary hover:text-accent transition-all">
+                <Link href="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
                   <User className="w-4 h-4" /> {dict.nav.profile}
                 </Link>
 
                 {session.user.role === "admin" && (
-                  <Link href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium hover:bg-secondary hover:text-accent transition-all">
+                  <Link href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
                     <Shield className="w-4 h-4" /> {dict.nav.adminPanel}
                   </Link>
                 )}
 
                 {session.user.role === "teacher" && (
-                  <Link href="/teacher" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium hover:bg-secondary hover:text-accent transition-all">
+                  <Link href="/teacher" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all">
                     <GraduationCap className="w-4 h-4" /> {dict.nav.teacherWorkspace}
                   </Link>
                 )}
