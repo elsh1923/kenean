@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# Canaan Hub (Kenean)
+### Digital Faith Learning Platform
 
-First, run the development server:
+[![Live Demo](https://img.shields.io/badge/Live_Demo-kenean--2pmd.vercel.app-C9A24B?style=for-the-badge)](https://kenean-2pmd.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)]()
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+A comprehensive faith learning hub featuring structured video lessons, digital books, and an interactive community Q&A system.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+</div>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📌 The Problem
+Access to high-quality, structured religious education materials is often fragmented. Learners struggle to find resources that are both well-organized and available in a modern, mobile-friendly digital format, making consistent learning difficult.
 
-## Learn More
+## 💡 The Solution: Canaan Hub
+**Canaan Hub** centralizes faith-based education into a single, accessible platform. By combining multimedia learning (video streaming), an integrated reading experience (digital books), and community interaction (Q&A), the platform provides a holistic environment for spiritual growth and education.
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Key Features
+- **Structured Video Lessons**: High-quality video streaming for sequential, module-based learning.
+- **Digital Library**: Built-in access to curated digital books and reading materials.
+- **Community Q&A System**: Interactive forums where users can ask questions, share insights, and engage with community leaders.
+- **Mobile-Friendly UI**: A fully responsive, modern interface designed to work seamlessly across mobile devices, tablets, and desktops.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Tech Stack
+- **Framework**: [Next.js](https://nextjs.org/) (React)
+- **Styling**: Tailwind CSS
+- **Features**: Video Streaming integration, custom Q&A backend logic
+- **Deployment**: Vercel (Frontend) / Docker
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Getting Started
 
-## Deploy on Vercel
+### Prerequisites
+Make sure you have Node.js installed (v16 or higher), or Docker if you prefer containerized execution.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Standard Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/elsh1923/kenean.git
+   cd kenean
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   Create a `.env.local` file in the root directory and add any necessary environment variables.
+
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to see the result.
+
+### 🐳 Running with Docker
+This project is configured with a multi-stage Docker build for optimized standalone Next.js deployments.
+
+1. **Build the image:**
+   ```bash
+   docker build -t kenean-app .
+   ```
+
+2. **Run the container:**
+   ```bash
+   docker run -p 3000:3000 -d kenean-app
+   ```
+   The application will be running on `http://localhost:3000`.
+
+## 🌍 Links & Contact
+- **Live Platform**: [https://kenean-2pmd.vercel.app/](https://kenean-2pmd.vercel.app/)
+- **Developer**: Elshaday Dagne Demessie ([Portfolio](https://github.com/elsh1923/portfoliowebsite))
+- **Email**: [elshadaydagne480@gmail.com](mailto:elshadaydagne480@gmail.com)
